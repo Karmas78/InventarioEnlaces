@@ -19,6 +19,7 @@ const app = {
                     this.loadDashboard();
                     this.loadInventory();
                     this.loadLoans();
+                    this.updateNotifications();
                 } catch (error) {
                     this.showToast(error.message, 'error');
                 }
@@ -216,12 +217,84 @@ const app = {
                     </td>
                     <td><span class="badge-status ${statusClass}">${eq.estado}</span></td>
                     <td>
+                        <button class="btn-icon" onclick="app.viewEquipment('${eq.id}')" title="Ver Detalles"><i class="fa-solid fa-eye"></i></button>
                         <button class="btn-icon" onclick="app.editEquipment('${eq.id}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
                         <button class="btn-icon" onclick="app.deleteEquipment('${eq.id}')" title="Eliminar" style="color:var(--danger)"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>
             `;
         });
+    },
+
+    viewEquipment(id) {
+        const eq = db.getEquipos().find(e => e.id === id);
+        if (!eq) return;
+
+        const content = document.getElementById('details-content');
+        const photoHtml = eq.foto ? 
+            `<img src="${eq.foto}" alt="Foto Equipo">` : 
+            `<div style="width: 100%; height: 100%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #94a3b8;"><i class="fa-solid fa-camera fa-3x"></i></div>`;
+
+        content.innerHTML = `
+            <div class="photo-container">${photoHtml}</div>
+            <div class="details-info">
+                <div class="detail-item">
+                    <label>Asset Tag</label>
+                    <p>${eq.assetTag}</p>
+                </div>
+                <div class="detail-item">
+                    <label>Número de Serie</label>
+                    <p>${eq.serie}</p>
+                </div>
+                <div class="detail-item">
+                    <label>Nombre del Equipo</label>
+                    <p>${eq.nombre}</p>
+                </div>
+                <div class="detail-item">
+                    <label>Categoría</label>
+                    <p>${eq.categoria}</p>
+                </div>
+                <div class="detail-item">
+                    <label>Marca</label>
+                    <p>${eq.marca || '—'}</p>
+                </div>
+                <div class="detail-item">
+                    <label>Modelo</label>
+                    <p>${eq.modelo || '—'}</p>
+                </div>
+                <div class="detail-item">
+                    <label>Estado</label>
+                    <p><span class="badge-status ${this.getStatusBadge(eq.estado)}">${eq.estado}</span></p>
+                </div>
+                <div class="detail-item">
+                    <label>Ubicación</label>
+                    <p>${eq.ubicacion || 'Sin asignar'}</p>
+                </div>
+                <div class="detail-item">
+                    <label>Fecha Adquisición</label>
+                    <p>${eq.fechaAdquisicion}</p>
+                </div>
+                <div class="detail-item full-width">
+                    <label>Observaciones</label>
+                    <p style="white-space: pre-wrap;">${eq.observaciones || 'Sin observaciones.'}</p>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('btn-edit-from-details').onclick = () => {
+            this.closeModals();
+            this.editEquipment(id);
+        };
+
+        document.getElementById('details-modal').classList.add('active');
+    },
+
+    getStatusBadge(estado) {
+        if(estado === 'Operativo') return 'badge-success';
+        if(estado === 'En Reparación') return 'badge-warning';
+        if(estado === 'De Baja') return 'badge-danger';
+        if(estado === 'Pendiente de Revisión') return 'badge-info';
+        return '';
     },
 
     editEquipment(id) {
@@ -236,6 +309,7 @@ const app = {
                 this.loadInventory();
                 this.loadDashboard();
                 this.loadHistory();
+                this.updateNotifications();
             } catch (error) {
                 this.showToast(error.message, 'error');
             }
@@ -303,6 +377,74 @@ const app = {
         document.getElementById('equipment-modal').classList.add('active');
     },
 
+    updateNotifications() {
+        const equipos = db.getEquipos();
+        const prestamos = db.getAsignaciones(true);
+        const alerts = [];
+
+        // Préstamos atrasados
+        prestamos.forEach(p => {
+            if (new Date(p.fechaDevolucionPrevista) < new Date()) {
+                const eq = equipos.find(e => e.id === p.equipoId);
+                alerts.push({
+                    type: 'danger',
+                    icon: 'fa-clock',
+                    title: 'Préstamo Vencido',
+                    desc: `El equipo ${eq ? eq.assetTag : 'ID:'+p.equipoId} no ha sido devuelto.`
+                });
+            }
+        });
+
+        // Equipos en revisión o reparación
+        equipos.forEach(e => {
+            if (e.estado === 'Pendiente de Revisión') {
+                alerts.push({
+                    type: 'warning',
+                    icon: 'fa-magnifying-glass',
+                    title: 'Pendiente de Revisión',
+                    desc: `El equipo ${e.assetTag} (${e.nombre}) requiere inspección.`
+                });
+            }
+            if (e.estado === 'En Reparación') {
+                alerts.push({
+                    type: 'warning',
+                    icon: 'fa-screwdriver-wrench',
+                    title: 'En Reparación',
+                    desc: `El equipo ${e.assetTag} está fuera de servicio.`
+                });
+            }
+        });
+
+        const badge = document.getElementById('notif-badge');
+        badge.innerText = alerts.length;
+        badge.style.display = alerts.length > 0 ? 'block' : 'none';
+
+        this.currentAlerts = alerts;
+    },
+
+    openNotificationsModal() {
+        const container = document.getElementById('notifications-list');
+        if (!this.currentAlerts || this.currentAlerts.length === 0) {
+            container.innerHTML = `
+                <div style="padding: 40px; text-align: center; color: var(--text-muted);">
+                    <i class="fa-solid fa-bell-slash fa-3x" style="margin-bottom: 15px; opacity: 0.3;"></i>
+                    <p>No hay alertas pendientes en este momento.</p>
+                </div>
+            `;
+        } else {
+            container.innerHTML = this.currentAlerts.map(a => `
+                <div class="notification-item ${a.type}">
+                    <div class="icon"><i class="fa-solid ${a.icon}"></i></div>
+                    <div class="content">
+                        <h4>${a.title}</h4>
+                        <p>${a.desc}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+        document.getElementById('notifications-modal').classList.add('active');
+    },
+
     closeModals() {
         document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
     },
@@ -333,6 +475,7 @@ const app = {
             this.closeModals();
             this.loadInventory();
             this.loadDashboard();
+            this.updateNotifications();
         } catch (error) {
             this.showToast(error.message, 'error');
         }
@@ -434,6 +577,7 @@ const app = {
             this.closeModals();
             this.loadLoans();
             this.loadDashboard();
+            this.updateNotifications();
         } catch (error) {
             this.showToast(error.message, 'error');
         }
@@ -457,6 +601,7 @@ const app = {
             this.loadLoans();
             this.loadInventory();
             this.loadDashboard();
+            this.updateNotifications();
         } catch (error) {
             this.showToast(error.message, 'error');
         }

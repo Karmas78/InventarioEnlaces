@@ -73,7 +73,7 @@
             </div>
             <div class="topbar-actions">
                 <button class="btn-icon" title="Exportar Todo a Excel" onclick="app.exportData()"><i class="fa-solid fa-file-excel" style="color: #217346;"></i></button>
-                <button class="btn-icon notification"><i class="fa-regular fa-bell"></i><span class="badge">3</span></button>
+                <button class="btn-icon notification" onclick="app.openNotificationsModal()"><i class="fa-regular fa-bell"></i><span class="badge" id="notif-badge">0</span></button>
             </div>
         </header>
 
@@ -827,6 +827,40 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="app.closeModals()">Cancelar</button>
                 <button class="btn btn-primary" onclick="app.saveFuncionario()"><i class="fa-solid fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Detalles del Equipo -->
+    <div class="modal-overlay" id="details-modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-circle-info"></i> Detalles del Equipo</h2>
+                <button class="btn-close" onclick="app.closeModals()"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div id="details-content" class="details-view">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="app.closeModals()">Cerrar</button>
+                <button class="btn btn-primary" id="btn-edit-from-details"><i class="fa-solid fa-pen"></i> Editar Equipo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Notificaciones -->
+    <div class="modal-overlay" id="notifications-modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-bell"></i> Notificaciones y Alertas</h2>
+                <button class="btn-close" onclick="app.closeModals()"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="modal-body" style="padding: 0;">
+                <div id="notifications-list">
+                    <!-- Dynamic content -->
+                </div>
             </div>
         </div>
     </div>
