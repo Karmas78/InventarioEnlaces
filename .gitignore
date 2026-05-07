@@ -1,0 +1,12 @@
+# Datos sensibles
+datos\ no\ subir/
+*.csv
+
+# Firebase/Config (Opcional si se quiere ocultar, pero necesario para GitHub Pages)
+# js/firebase-config.js
+
+# Node/IDE
+node_modules/
+.vscode/
+.DS_Store
+.gemini/

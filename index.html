@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario Sala de Enlaces - Antigravity</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css?v=3">
+    <!-- Export Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-overlay active" id="login-screen">
+        <div class="login-box">
+            <div class="sidebar-header" style="justify-content:center; padding-bottom: 20px; border:none; color: var(--primary-color)">
+                <i class="fa-solid fa-server logo-icon"></i>
+                <h2 style="color:var(--primary-color)">Antigravity<span style="color:var(--secondary-color)">Inv</span></h2>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Correo Electrónico</label>
+                    <input type="email" id="login-email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="login-password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content:center; margin-top:10px;" id="login-btn">
+                    <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar-overlay" onclick="app.toggleSidebar()"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-server logo-icon"></i>
+            <h2>Antigravity<span>Inv</span></h2>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-target="dashboard"><i class="fa-solid fa-chart-pie"></i> <span>Dashboard</span></a>
+            <a href="#" class="nav-item" data-target="inventory"><i class="fa-solid fa-laptop"></i> <span>Equipos</span></a>
+            <a href="#" class="nav-item" data-target="loans"><i class="fa-solid fa-handshake"></i> <span>Préstamos</span></a>
+            <a href="#" class="nav-item" data-target="history"><i class="fa-solid fa-clock-rotate-left"></i> <span>Historial</span></a>
+            <a href="#" class="nav-item" data-target="settings"><i class="fa-solid fa-gear"></i> <span>Configuración</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="avatar" style="background: rgba(255,255,255,0.1); color: #fff;"><i class="fa-solid fa-user"></i></div>
+                <div class="details">
+                    <span class="name">Cargando...</span>
+                    <button class="btn btn-sm" style="padding: 2px 5px; font-size:10px; margin-top:2px; background: rgba(255,255,255,0.1); color:white; border:none;" onclick="app.logout()">Cerrar Sesión</button>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="topbar">
+            <div style="display: flex; align-items: center; gap: 15px; flex: 1;">
+                <button class="btn-icon mobile-menu-toggle" onclick="app.toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+                <div class="search-bar">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" id="global-search" placeholder="Buscar por serie, asset tag o nombre...">
+                </div>
+            </div>
+            <div class="topbar-actions">
+                <button class="btn-icon" title="Exportar Todo a Excel" onclick="app.exportData()"><i class="fa-solid fa-file-excel" style="color: #217346;"></i></button>
+                <button class="btn-icon notification"><i class="fa-regular fa-bell"></i><span class="badge">3</span></button>
+            </div>
+        </header>
+
+        <!-- Pages -->
+        <div class="page-container">
+            <!-- Dashboard -->
+            <section id="dashboard" class="page active">
+                <div class="page-header">
+                    <h1>Dashboard</h1>
+                    <p>Resumen general del estado de inventario.</p>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue"><i class="fa-solid fa-laptop"></i></div>
+                        <div class="stat-details">
+                            <h3>Total Equipos</h3>
+                            <p class="stat-value" id="stat-total">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange"><i class="fa-solid fa-handshake"></i></div>
+                        <div class="stat-details">
+                            <h3>En Préstamo</h3>
+                            <p class="stat-value" id="stat-loans">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon red"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+                        <div class="stat-details">
+                            <h3>Requieren Mantenimiento</h3>
+                            <p class="stat-value" id="stat-maintenance">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green"><i class="fa-solid fa-check-circle"></i></div>
+                        <div class="stat-details">
+                            <h3>Operativos</h3>
+                            <p class="stat-value" id="stat-operative">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-widgets">
+                    <div class="widget">
+                        <h3>Equipos Críticos / Antiguos (> 3 años)</h3>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Asset Tag</th>
+                                        <th>Equipo</th>
+                                        <th>Adquisición</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="critical-equipments">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Inventory CRUD -->
+            <section id="inventory" class="page">
+                <div class="page-header">
+                    <h1>Gestión de Equipos</h1>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn btn-secondary" onclick="app.openInventoryReportModal()" title="Generar informe PDF de equipos"><i class="fa-solid fa-file-pdf" style="color:#e74c3c;"></i> Informe PDF</button>
+                        <button class="btn btn-primary" onclick="app.openEquipmentModal()"><i class="fa-solid fa-plus"></i> Nuevo Equipo</button>
+                    </div>
+                </div>
+                
+                <div class="filters-bar">
+                    <select id="filter-category" class="form-control">
+                        <option value="">Todas las Categorías</option>
+                        <option value="AIO (All-in-One)">AIO (All-in-One)</option>
+                        <option value="Audífonos">Audífonos</option>
+                        <option value="Cámara">Cámara</option>
+                        <option value="Disco Duro Externo">Disco Duro Externo</option>
+                        <option value="Impresora">Impresora</option>
+                        <option value="Laptop">Laptop</option>
+                        <option value="Micrófono">Micrófono</option>
+                        <option value="Monitor / Pantalla">Monitor / Pantalla</option>
+                        <option value="Mouse">Mouse</option>
+                        <option value="Netbook">Netbook</option>
+                        <option value="PC Escritorio">PC Escritorio</option>
+                        <option value="Parlante">Parlante</option>
+                        <option value="Proyector">Proyector</option>
+                        <option value="Router / Switch">Router / Switch</option>
+                        <option value="Scanner">Scanner</option>
+                        <option value="Tablet">Tablet</option>
+                        <option value="Televisor">Televisor</option>
+                        <option value="Teclado">Teclado</option>
+                        <option value="UPS">UPS</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                    <select id="filter-status" class="form-control">
+                        <option value="">Todos los Estados</option>
+                        <option value="Operativo">Operativo</option>
+                        <option value="En Reparación">En Reparación</option>
+                        <option value="De Baja">De Baja</option>
+                        <option value="Pendiente de Revisión">Pendiente de Revisión</option>
+                    </select>
+                    <select id="filter-location" class="form-control">
+                        <option value="">Todas las Ubicaciones</option>
+                        <!-- Dynamic locations -->
+                    </select>
+                </div>
+
+                <div class="table-responsive card">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Asset Tag / Serie</th>
+                                <th>Equipo</th>
+                                <th>Categoría</th>
+                                <th>Ubicación / Asignado A</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-table-body">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Loans (Préstamos) -->
+            <section id="loans" class="page">
+                <div class="page-header">
+                    <h1>Sistema de Préstamos</h1>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn btn-secondary" onclick="app.generateLoansReportPDF()" title="Generar informe PDF de préstamos activos"><i class="fa-solid fa-file-pdf" style="color:#e74c3c;"></i> Informe PDF</button>
+                        <button class="btn btn-primary" onclick="app.openLoanModal()"><i class="fa-solid fa-handshake"></i> Asignar Equipo</button>
+                    </div>
+                </div>
+
+                <div class="table-responsive card">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Equipo</th>
+                                <th>Funcionario</th>
+                                <th>Fecha Entrega</th>
+                                <th>Devolución Prevista</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loans-table-body">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- History -->
+            <section id="history" class="page">
+                <div class="page-header">
+                    <h1>Historial de Movimientos</h1>
+                    <p>Registro de toda la actividad de los equipos.</p>
+                </div>
+                <div class="table-responsive card">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Equipo</th>
+                                <th>Funcionario</th>
+                                <th>Acción Realizada</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Settings -->
+            <section id="settings" class="page">
+                <div class="page-header">
+                    <h1>Configuración del Sistema</h1>
+                    <p>Administración y opciones avanzadas.</p>
+                </div>
+
+                <!-- Gestión de Funcionarios -->
+                <div class="card" style="margin-bottom: 20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                        <h3 style="margin:0;"><i class="fa-solid fa-users" style="color:var(--primary-color)"></i> Gestión de Funcionarios</h3>
+                        <button class="btn btn-primary" onclick="app.openFuncionarioModal()"><i class="fa-solid fa-user-plus"></i> Nuevo Funcionario</button>
+                    </div>
+                    <p class="text-muted" style="font-size:13px; margin-bottom:14px;">Administra el personal autorizado para recibir equipos en préstamo.</p>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>RUT</th>
+                                    <th>Cargo</th>
+                                    <th>Departamento</th>
+                                    <th>Correo</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staff-table-body">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="card">
+                        <h3><i class="fa-solid fa-users-gear" style="color:var(--secondary-color)"></i> Gestión de Roles</h3>
+                        <p class="text-muted" style="margin-bottom:15px; margin-top:5px; font-size:14px;">Cambia tu rol en el sistema para probar la seguridad.</p>
+                        <select id="user-role-select" class="form-control" onchange="app.changeRole(this.value)">
+                            <option value="Administrador">Administrador (Control Total)</option>
+                            <option value="Visualizador">Visualizador (Solo Lectura)</option>
+                        </select>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fa-solid fa-database" style="color:var(--warning)"></i> Gestión de Datos</h3>
+                        <p class="text-muted" style="margin-bottom:15px; margin-top:5px; font-size:14px;">Importa datos masivos o resetea la base de datos.</p>
+                        <div style="display:flex; gap:10px;">
+                            <button class="btn btn-primary" onclick="document.getElementById('csv-file').click()"><i class="fa-solid fa-upload"></i> Carga Masiva (CSV)</button>
+                            <input type="file" id="csv-file" style="display:none" accept=".csv" onchange="app.importCSV(this)">
+                            <button class="btn btn-secondary" style="background:var(--danger);color:white;border:none" onclick="app.resetDatabase()"><i class="fa-solid fa-trash"></i> Resetear Datos</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <!-- Equipment Modal -->
+    <div class="modal-overlay" id="equipment-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="equipment-modal-title">Registrar Equipo</h2>
+                <button class="btn-close" onclick="app.closeModals()"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="equipment-form">
+                    <input type="hidden" id="eq-id">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Asset Tag (Único)*</label>
+                            <input type="text" id="eq-asset" required class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Número de Serie*</label>
+                            <input type="text" id="eq-serial" required class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Nombre del Equipo*</label>
+                            <input type="text" id="eq-name" required class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Categoría*</label>
+                            <select id="eq-category" required class="form-control">
+                                <option value="">Seleccionar...</option>
+                                <option value="AIO (All-in-One)">AIO (All-in-One)</option>
+                                <option value="Audífonos">Audífonos</option>
+                                <option value="Cámara">Cámara</option>
+                                <option value="Disco Duro Externo">Disco Duro Externo</option>
+                                <option value="Impresora">Impresora</option>
+                                <option value="Laptop">Laptop</option>
+                                <option value="Micrófono">Micrófono</option>
+                                <option value="Monitor / Pantalla">Monitor / Pantalla</option>
+                                <option value="Mouse">Mouse</option>
+                                <option value="Netbook">Netbook</option>
+                                <option value="PC Escritorio">PC Escritorio</option>
+                                <option value="Parlante">Parlante</option>
+                                <option value="Proyector">Proyector</option>
+                                <option value="Router / Switch">Router / Switch</option>
+                                <option value="Scanner">Scanner</option>
+                                <option value="Tablet">Tablet</option>
+                                <option value="Televisor">Televisor</option>
+                                <option value="Teclado">Teclado</option>
+                                <option value="UPS">UPS</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Marca</label>
+                            <input type="text" id="eq-brand" class="form-control" list="brand-list" placeholder="Selecciona o escribe una marca..." autocomplete="off">
+                            <datalist id="brand-list">
+                                <option value="Acer">
+                                <option value="Apple">
+                                <option value="ASUS">
+                                <option value="BenQ">
+                                <option value="Brother">
+                                <option value="Canon">
+                                <option value="Dell">
+                                <option value="Epson">
+                                <option value="Genius">
+                                <option value="HP">
+                                <option value="Huawei">
+                                <option value="LG">
+                                <option value="Lenovo">
+                                <option value="Logitech">
+                                <option value="Microsoft">
+                                <option value="MSI">
+                                <option value="Samsung">
+                                <option value="Sony">
+                                <option value="TP-Link">
+                                <option value="Toshiba">
+                                <option value="ViewSonic">
+                                <option value="Xiaomi">
+                            </datalist>
+                        </div>
+                        <div class="form-group">
+                            <label>Modelo</label>
+                            <input type="text" id="eq-model" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha de Adquisición*</label>
+                            <input type="date" id="eq-date" required class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Estado*</label>
+                            <select id="eq-status" required class="form-control">
+                                <option value="Operativo">Operativo</option>
+                                <option value="En Reparación">En Reparación</option>
+                                <option value="De Baja">De Baja</option>
+                                <option value="Pendiente de Revisión">Pendiente de Revisión</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Ubicación (Lab/Sala)</label>
+                            <input type="text" id="eq-location" class="form-control" placeholder="Ej. Lab A, Bodega...">
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Foto del Equipo (Opcional)</label>
+                            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                                <label for="eq-photo-input-gallery" class="btn btn-secondary" style="flex:1; text-align:center; cursor:pointer; justify-content:center;">
+                                    <i class="fa-solid fa-image"></i> De Galería
+                                </label>
+                                <label for="eq-photo-input-camera" class="btn btn-primary" style="flex:1; text-align:center; cursor:pointer; justify-content:center;">
+                                    <i class="fa-solid fa-camera"></i> Tomar Foto
+                                </label>
+                            </div>
+                            <input type="file" id="eq-photo-input-gallery" style="display:none" accept="image/*" onchange="app.previewPhoto(event)">
+                            <input type="file" id="eq-photo-input-camera" style="display:none" accept="image/*" capture="environment" onchange="app.previewPhoto(event)">
+                            <input type="hidden" id="eq-photo-base64">
+                            <div id="eq-photo-preview" style="margin-top: 10px; width: 120px; height: 120px; border-radius: var(--radius); overflow: hidden; display:none; border: 1px solid var(--border-color); background: #f8fafc; position:relative;">
+                                <img id="eq-photo-img" src="" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                                <button type="button" onclick="document.getElementById('eq-photo-base64').value=''; document.getElementById('eq-photo-preview').style.display='none'" style="position:absolute; top:5px; right:5px; background:rgba(226,89,80,0.9); color:white; border:none; border-radius:50%; width:24px; height:24px; cursor:pointer; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-times"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="app.closeModals()">Cancelar</button>
+                <button class="btn btn-primary" onclick="app.saveEquipment()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loan Modal -->
+    <div class="modal-overlay" id="loan-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Asignar Equipo (Préstamo)</h2>
+                <button class="btn-close" onclick="app.closeModals()"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="loan-form">
+                    <div class="form-group">
+                        <label>Seleccionar Equipo Disponible*</label>
+                        <select id="loan-equipment" required class="form-control">
+                            <!-- Dynamic -->
+                        </select>
+                        <small class="text-muted">Solo se muestran equipos operativos y pendientes de revisión.</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Funcionario*</label>
+                        <select id="loan-staff" required class="form-control">
+                            <!-- Dynamic -->
+                        </select>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Fecha de Entrega*</label>
+                            <input type="date" id="loan-start" required class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Devolución Prevista*</label>
+                            <input type="date" id="loan-end" required class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Observaciones</label>
+                        <textarea id="loan-notes" class="form-control"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="app.closeModals()">Cancelar</button>
+                <button class="btn btn-primary" onclick="app.saveLoan()">Asignar y Generar Acta</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Return Modal -->
+    <div class="modal-overlay" id="return-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Devolver Equipo</h2>
+                <button class="btn-close" onclick="app.closeModals()"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="return-form">
+                    <input type="hidden" id="return-loan-id">
+                    <input type="hidden" id="return-eq-id">
+                    <div class="form-group">
+                        <label>Nuevo Estado de Funcionamiento*</label>
+                        <select id="return-status" required class="form-control">
+                            <option value="Operativo">Operativo</option>
+                            <option value="En Reparación">En Reparación</option>
+                            <option value="De Baja">De Baja</option>
+                            <option value="Pendiente de Revisión">Pendiente de Revisión</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Observaciones de Devolución</label>
+                        <textarea id="return-notes" class="form-control" placeholder="Ej. Equipo devuelto con pantalla rota..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="app.closeModals()">Cancelar</button>
+                <button class="btn btn-primary" onclick="app.processReturn()">Procesar Devolución</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Toast -->
+    <div id="toast-container"></div>
+
+    <!-- Modal: Seleccionar Estado para Informe de Equipos -->
+    <div class="modal-overlay" id="inventory-report-modal">
+        <div class="modal-content" style="max-width: 420px;">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-file-pdf" style="color:#e74c3c;"></i> Informe de Equipos</h2>
+                <button class="btn-close" onclick="app.closeModals()"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <p style="color:var(--text-muted); margin-bottom:18px; font-size:14px;">Selecciona el estado de los equipos que deseas incluir en el informe PDF.</p>
+                <div class="form-group">
+                    <label>Filtrar por Estado</label>
+                    <select id="report-status-filter" class="form-control">
+                        <option value="">Todos los Equipos</option>
+                        <option value="Operativo">Operativo</option>
+                        <option value="En Reparación">En Reparación</option>
+                        <option value="De Baja">De Baja</option>
+                        <option value="Pendiente de Revisión">Pendiente de Revisión</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="app.closeModals()">Cancelar</button>
+                <button class="btn btn-primary" onclick="app.generateInventoryReportPDF()"><i class="fa-solid fa-download"></i> Generar PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden PDF Templates -->
+    <div id="pdf-template" style="display:none;">
+        <div id="pdf-content" style="padding: 30px 40px; font-family: 'Helvetica', sans-serif; color: #000; background: #fff; width: 750px; box-sizing: border-box; margin: 0 auto;">
+            <table style="width: 100%; border-bottom: 2px solid #000; margin-bottom: 30px; padding-bottom: 15px;">
+                <tr>
+                    <td style="width: 20%; vertical-align: middle; text-align: left;">
+                        <img src="img/insignia.jpg" style="width: 100px; height: auto;" alt="Insignia" onerror="this.style.display='none'">
+                    </td>
+                    <td style="width: 60%; text-align: center; vertical-align: middle;">
+                        <h1 style="font-size: 20px; margin: 0; text-transform: uppercase;">Escuela Guardiamarina Ernesto Riquelme Venegas</h1>
+                        <h2 style="font-size: 16px; margin: 10px 0 0 0; color: #555;">ACTA DE ENTREGA DE EQUIPAMIENTO TECNOLÓGICO</h2>
+                    </td>
+                    <td style="width: 20%;"></td>
+                </tr>
+            </table>
+            
+            <p style="text-align: right; margin-bottom: 30px;"><strong>Fecha:</strong> <span id="pdf-fecha"></span></p>
+            
+            <p style="text-align: justify; line-height: 1.6; margin-bottom: 20px;">
+                Por medio del presente documento, se hace entrega formal del siguiente equipamiento tecnológico al funcionario/a individualizado a continuación, para el desempeño de sus labores en la institución:
+            </p>
+
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 14px; table-layout: fixed; word-wrap: break-word;">
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #000; width: 30%; background: #f0f0f0; font-weight: bold;">Funcionario:</td>
+                    <td style="padding: 8px; border: 1px solid #000;" id="pdf-funcionario"></td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #000; background: #f0f0f0; font-weight: bold;">RUT:</td>
+                    <td style="padding: 8px; border: 1px solid #000;" id="pdf-rut"></td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #000; background: #f0f0f0; font-weight: bold;">Cargo:</td>
+                    <td style="padding: 8px; border: 1px solid #000;" id="pdf-cargo"></td>
+                </tr>
+            </table>
+
+            <h3 style="margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px; font-size: 16px;">Detalle del Equipo</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 14px; table-layout: fixed; word-wrap: break-word;">
+                <tr>
+                    <th style="padding: 8px; border: 1px solid #000; background: #f0f0f0; text-align: left;">Tipo</th>
+                    <th style="padding: 8px; border: 1px solid #000; background: #f0f0f0; text-align: left;">Marca/Modelo</th>
+                    <th style="padding: 8px; border: 1px solid #000; background: #f0f0f0; text-align: left;">N° Serie</th>
+                    <th style="padding: 8px; border: 1px solid #000; background: #f0f0f0; text-align: left;">Asset Tag</th>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #000;" id="pdf-eq-tipo"></td>
+                    <td style="padding: 8px; border: 1px solid #000;" id="pdf-eq-modelo"></td>
+                    <td style="padding: 8px; border: 1px solid #000;" id="pdf-eq-serie"></td>
+                    <td style="padding: 8px; border: 1px solid #000;" id="pdf-eq-tag"></td>
+                </tr>
+            </table>
+
+            <p style="text-align: justify; line-height: 1.6; margin-bottom: 10px; font-size: 14px;">
+                <strong>Observaciones de entrega:</strong> <span id="pdf-observaciones"></span>
+            </p>
+            <p style="text-align: justify; line-height: 1.6; margin-bottom: 40px; font-size: 14px;">
+                <strong>Fecha de Devolución Prevista:</strong> <span id="pdf-devolucion"></span>
+            </p>
+
+            <p style="text-align: justify; line-height: 1.6; font-size: 12px; margin-bottom: 60px;">
+                <em>El funcionario declara recibir el equipo en buenas condiciones y se compromete a hacer un uso responsable del mismo, destinado exclusivamente a fines laborales y académicos. En caso de pérdida, robo o daño por negligencia, el funcionario deberá reportarlo inmediatamente a la dirección del establecimiento.</em>
+            </p>
+
+            <div style="display: flex; justify-content: space-around; margin-top: 50px; text-align: center;">
+                <div style="width: 40%;">
+                    <div style="border-top: 1px solid #000; padding-top: 10px; margin-top: 50px;"></div>
+                    <p style="margin: 0; font-weight: bold; font-size: 14px;">Samuel Honores Pereira</p>
+                    <p style="margin: 0; font-size: 12px; color: #555;">Encargado de Enlaces</p>
+                </div>
+                <div style="width: 40%;">
+                    <div style="border-top: 1px solid #000; padding-top: 10px; margin-top: 50px;"></div>
+                    <p style="margin: 0; font-weight: bold; font-size: 14px;" id="pdf-firma-nombre"></p>
+                    <p style="margin: 0; font-size: 12px; color: #555;" id="pdf-firma-cargo"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden PDF: Informe de Inventario de Equipos -->
+    <div id="pdf-inventory-report-wrapper" style="display:none;">
+        <div id="pdf-inventory-report" style="padding: 30px 40px; font-family: 'Helvetica', sans-serif; color: #000; background: #fff; width: 750px; box-sizing: border-box; margin: 0 auto;">
+            <!-- Header -->
+            <table style="width: 100%; border-bottom: 2px solid #1a237e; margin-bottom: 20px; padding-bottom: 15px;">
+                <tr>
+                    <td style="width: 15%; vertical-align: middle;">
+                        <img src="img/insignia.jpg" style="width: 80px; height: auto;" alt="Insignia" onerror="this.style.display='none'">
+                    </td>
+                    <td style="text-align: center; vertical-align: middle;">
+                        <p style="margin:0; font-size:11px; color:#555; text-transform:uppercase;">Escuela Guardiamarina Ernesto Riquelme Venegas</p>
+                        <h1 style="font-size: 18px; margin: 6px 0 0 0; text-transform: uppercase; color:#1a237e;">Informe de Inventario Tecnológico</h1>
+                        <p style="margin:4px 0 0 0; font-size:13px; color:#555;">Sala de Enlaces</p>
+                    </td>
+                    <td style="width: 15%;"></td>
+                </tr>
+            </table>
+            <!-- Meta -->
+            <table style="width:100%; font-size:12px; margin-bottom:20px;">
+                <tr>
+                    <td><strong>Fecha de emisión:</strong> <span id="rpt-inv-fecha"></span></td>
+                    <td style="text-align:right;"><strong>Filtro aplicado:</strong> <span id="rpt-inv-filtro"></span></td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="padding-top:4px;"><strong>Total de equipos en informe:</strong> <span id="rpt-inv-total"></span></td>
+                </tr>
+            </table>
+            <!-- Table -->
+            <table style="width:100%; border-collapse:collapse; font-size:12px;">
+                <thead>
+                    <tr style="background:#1a237e; color:#fff;">
+                        <th style="padding:8px 6px; border:1px solid #1a237e; text-align:left;">Asset Tag</th>
+                        <th style="padding:8px 6px; border:1px solid #1a237e; text-align:left;">N° Serie</th>
+                        <th style="padding:8px 6px; border:1px solid #1a237e; text-align:left;">Nombre / Tipo</th>
+                        <th style="padding:8px 6px; border:1px solid #1a237e; text-align:left;">Categoría</th>
+                        <th style="padding:8px 6px; border:1px solid #1a237e; text-align:left;">Marca / Modelo</th>
+                        <th style="padding:8px 6px; border:1px solid #1a237e; text-align:left;">Ubicación</th>
+                        <th style="padding:8px 6px; border:1px solid #1a237e; text-align:left;">Estado</th>
+                        <th style="padding:8px 6px; border:1px solid #1a237e; text-align:left;">Adquisición</th>
+                    </tr>
+                </thead>
+                <tbody id="rpt-inv-tbody">
+                    <!-- Dynamic rows -->
+                </tbody>
+            </table>
+            <!-- Footer -->
+            <div style="margin-top:40px; display:flex; justify-content:space-around; text-align:center;">
+                <div style="width:40%;">
+                    <div style="border-top:1px solid #000; padding-top:8px; margin-top:50px;"></div>
+                    <p style="margin:0; font-weight:bold; font-size:13px;">Samuel Honores Pereira</p>
+                    <p style="margin:0; font-size:11px; color:#555;">Encargado de Enlaces</p>
+                </div>
+                <div style="width:40%;">
+                    <div style="border-top:1px solid #000; padding-top:8px; margin-top:50px;"></div>
+                    <p style="margin:0; font-weight:bold; font-size:13px;">Director(a) de Establecimiento</p>
+                    <p style="margin:0; font-size:11px; color:#555;">Firma y Timbre</p>
+                </div>
+            </div>
+            <p style="text-align:center; margin-top:20px; font-size:10px; color:#999;">Documento generado por AntigravityInv — Sistema de Inventario Sala de Enlaces</p>
+        </div>
+    </div>
+
+    <!-- Hidden PDF: Informe de Préstamos Activos -->
+    <div id="pdf-loans-report-wrapper" style="display:none;">
+        <div id="pdf-loans-report" style="padding: 30px 40px; font-family: 'Helvetica', sans-serif; color: #000; background: #fff; width: 750px; box-sizing: border-box; margin: 0 auto;">
+            <!-- Header -->
+            <table style="width: 100%; border-bottom: 2px solid #1a237e; margin-bottom: 20px; padding-bottom: 15px;">
+                <tr>
+                    <td style="width: 15%; vertical-align: middle;">
+                        <img src="img/insignia.jpg" style="width: 80px; height: auto;" alt="Insignia" onerror="this.style.display='none'">
+                    </td>
+                    <td style="text-align: center; vertical-align: middle;">
+                        <p style="margin:0; font-size:11px; color:#555; text-transform:uppercase;">Escuela Guardiamarina Ernesto Riquelme Venegas</p>
+                        <h1 style="font-size: 18px; margin: 6px 0 0 0; text-transform: uppercase; color:#1a237e;">Informe de Préstamos de Equipos</h1>
+                        <p style="margin:4px 0 0 0; font-size:13px; color:#555;">Sala de Enlaces — Préstamos Activos</p>
+                    </td>
+                    <td style="width: 15%;"></td>
+                </tr>
+            </table>
+            <!-- Meta -->
+            <table style="width:100%; font-size:12px; margin-bottom:20px;">
+                <tr>
+                    <td><strong>Fecha de emisión:</strong> <span id="rpt-loans-fecha"></span></td>
+                    <td style="text-align:right;"><strong>Total préstamos activos:</strong> <span id="rpt-loans-total"></span></td>
+                </tr>
+            </table>
+            <!-- Table -->
+            <table style="width:100%; border-collapse:collapse; font-size:12px;">
+                <thead>
+                    <tr style="background:#1a237e; color:#fff;">
+                        <th style="padding:8px 6px; border:1px solid #1a237e; text-align:left;">Asset Tag</th>
+                        <th style="padding:8px 6px; border:1px solid #1a237e; text-align:left;">N° Serie</th>
+                        <th style="padding:8px 6px; border:1px solid #1a237e; text-align:left;">Equipo</th>
+                        <th style="padding:8px 6px; border:1px solid #1a237e; text-align:left;">Funcionario</th>
+                        <th style="padding:8px 6px; border:1px solid #1a237e; text-align:left;">Cargo</th>
+                        <th style="padding:8px 6px; border:1px solid #1a237e; text-align:left;">F. Entrega</th>
+                        <th style="padding:8px 6px; border:1px solid #1a237e; text-align:left;">Dev. Prevista</th>
+                        <th style="padding:8px 6px; border:1px solid #1a237e; text-align:left;">Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="rpt-loans-tbody">
+                    <!-- Dynamic rows -->
+                </tbody>
+            </table>
+            <!-- Resumen atrasados -->
+            <div id="rpt-loans-overdue-box" style="margin-top:18px; padding:10px 14px; background:#fff3cd; border:1px solid #ffc107; border-radius:4px; font-size:12px; display:none;">
+                <strong>⚠️ Atención:</strong> Hay <span id="rpt-loans-overdue-count"></span> préstamo(s) con fecha de devolución vencida.
+            </div>
+            <!-- Footer -->
+            <div style="margin-top:40px; display:flex; justify-content:space-around; text-align:center;">
+                <div style="width:40%;">
+                    <div style="border-top:1px solid #000; padding-top:8px; margin-top:50px;"></div>
+                    <p style="margin:0; font-weight:bold; font-size:13px;">Samuel Honores Pereira</p>
+                    <p style="margin:0; font-size:11px; color:#555;">Encargado de Enlaces</p>
+                </div>
+                <div style="width:40%;">
+                    <div style="border-top:1px solid #000; padding-top:8px; margin-top:50px;"></div>
+                    <p style="margin:0; font-weight:bold; font-size:13px;">Director(a) de Establecimiento</p>
+                    <p style="margin:0; font-size:11px; color:#555;">Firma y Timbre</p>
+                </div>
+            </div>
+            <p style="text-align:center; margin-top:20px; font-size:10px; color:#999;">Documento generado por AntigravityInv — Sistema de Inventario Sala de Enlaces</p>
+        </div>
+    </div>
+
+    <!-- Modal: Nuevo / Editar Funcionario -->
+    <div class="modal-overlay" id="funcionario-modal">
+        <div class="modal-content" style="max-width: 560px;">
+            <div class="modal-header">
+                <h2 id="funcionario-modal-title"><i class="fa-solid fa-user-plus"></i> Nuevo Funcionario</h2>
+                <button class="btn-close" onclick="app.closeModals()"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="funcionario-form">
+                    <input type="hidden" id="func-id">
+                    <div class="form-grid">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Nombre Completo*</label>
+                            <input type="text" id="func-nombre" required class="form-control" placeholder="Ej. Juan Pérez González">
+                        </div>
+                        <div class="form-group">
+                            <label>RUT*</label>
+                            <input type="text" id="func-rut" required class="form-control" placeholder="Ej. 12.345.678-9">
+                        </div>
+                        <div class="form-group">
+                            <label>Correo Electrónico*</label>
+                            <input type="email" id="func-email" required class="form-control" placeholder="correo@escuela.cl">
+                        </div>
+                        <div class="form-group">
+                            <label>Cargo*</label>
+                            <input type="text" id="func-cargo" required class="form-control" list="cargo-list" placeholder="Ej. Profesor, Director...">
+                            <datalist id="cargo-list">
+                                <option value="Director(a)">
+                                <option value="Subdirector(a)">
+                                <option value="Inspector(a) General">
+                                <option value="Jefe(a) de UTP">
+                                <option value="Profesor(a)">
+                                <option value="Asistente de la Educación">
+                                <option value="Administrativo(a)">
+                                <option value="Encargado(a) de Enlace">
+                                <option value="Auxiliar">
+                                <option value="Otro">
+                            </datalist>
+                        </div>
+                        <div class="form-group">
+                            <label>Departamento / Unidad*</label>
+                            <input type="text" id="func-departamento" required class="form-control" list="dept-list" placeholder="Ej. Matemáticas, UTP...">
+                            <datalist id="dept-list">
+                                <option value="Dirección">
+                                <option value="UTP">
+                                <option value="Inspectoría">
+                                <option value="Matemáticas">
+                                <option value="Lenguaje">
+                                <option value="Ciencias">
+                                <option value="Historia">
+                                <option value="Inglés">
+                                <option value="Educación Física">
+                                <option value="Artes">
+                                <option value="Música">
+                                <option value="Tecnología">
+                                <option value="Administración">
+                                <option value="Orientación">
+                                <option value="Convivencia Escolar">
+                                <option value="PIE">
+                            </datalist>
+                        </div>
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <input type="tel" id="func-telefono" class="form-control" placeholder="Ej. +56 9 1234 5678">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="app.closeModals()">Cancelar</button>
+                <button class="btn btn-primary" onclick="app.saveFuncionario()"><i class="fa-solid fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/db.js"></script>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
