@@ -72,6 +72,9 @@
                 </div>
             </div>
             <div class="topbar-actions">
+                <button class="btn-icon" id="theme-toggle" title="Cambiar Modo" onclick="app.toggleTheme()">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
                 <button class="btn-icon" title="Exportar Todo a Excel" onclick="app.exportData()"><i class="fa-solid fa-file-excel" style="color: #217346;"></i></button>
                 <button class="btn-icon notification" onclick="app.openNotificationsModal()"><i class="fa-regular fa-bell"></i><span class="badge" id="notif-badge">0</span></button>
             </div>
@@ -134,6 +137,23 @@
                                 </tbody>
                             </table>
                         </div>
+                        <div class="pagination-container" id="pagination-dashboard">
+                            <div class="pagination-info">
+                                Mostrar 
+                                <select class="form-control pagination-select" onchange="app.changePageSize('dashboard', this.value)">
+                                    <option value="10">10</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="all">Todos</option>
+                                </select>
+                                registros
+                            </div>
+                            <div class="pagination-controls">
+                                <button class="btn btn-sm btn-secondary" onclick="app.changePage('dashboard', -1)"><i class="fa-solid fa-chevron-left"></i></button>
+                                <span class="page-numbers">Página 1 de 1</span>
+                                <button class="btn btn-sm btn-secondary" onclick="app.changePage('dashboard', 1)"><i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -185,7 +205,7 @@
                     </select>
                 </div>
 
-                <div class="table-responsive card">
+                <div class="table-responsive card" style="margin-bottom:0; border-bottom-left-radius:0; border-bottom-right-radius:0;">
                     <table class="data-table">
                         <thead>
                             <tr>
@@ -202,6 +222,23 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="pagination-container" id="pagination-inventory">
+                    <div class="pagination-info">
+                        Mostrar 
+                        <select class="form-control pagination-select" onchange="app.changePageSize('inventory', this.value)">
+                            <option value="10">10</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                            <option value="all">Todos</option>
+                        </select>
+                        registros
+                    </div>
+                    <div class="pagination-controls">
+                        <button class="btn btn-sm btn-secondary" onclick="app.changePage('inventory', -1)"><i class="fa-solid fa-chevron-left"></i></button>
+                        <span class="page-numbers">Página 1 de 1</span>
+                        <button class="btn btn-sm btn-secondary" onclick="app.changePage('inventory', 1)"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
             </section>
 
             <!-- Loans (Préstamos) -->
@@ -214,7 +251,7 @@
                     </div>
                 </div>
 
-                <div class="table-responsive card">
+                <div class="table-responsive card" style="margin-bottom:0; border-bottom-left-radius:0; border-bottom-right-radius:0;">
                     <table class="data-table">
                         <thead>
                             <tr>
@@ -230,6 +267,23 @@
                             <!-- Dynamic content -->
                         </tbody>
                     </table>
+                </div>
+                <div class="pagination-container" id="pagination-loans">
+                    <div class="pagination-info">
+                        Mostrar 
+                        <select class="form-control pagination-select" onchange="app.changePageSize('loans', this.value)">
+                            <option value="10">10</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                            <option value="all">Todos</option>
+                        </select>
+                        registros
+                    </div>
+                    <div class="pagination-controls">
+                        <button class="btn btn-sm btn-secondary" onclick="app.changePage('loans', -1)"><i class="fa-solid fa-chevron-left"></i></button>
+                        <span class="page-numbers">Página 1 de 1</span>
+                        <button class="btn btn-sm btn-secondary" onclick="app.changePage('loans', 1)"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
                 </div>
             </section>
 

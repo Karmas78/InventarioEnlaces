@@ -6,8 +6,14 @@ const app = {
         inventory: { column: 'assetTag', direction: 'asc' },
         loans: { column: 'equipoNombre', direction: 'asc' }
     },
+    paginationConfig: {
+        dashboard: { currentPage: 1, pageSize: 10 },
+        inventory: { currentPage: 1, pageSize: 10 },
+        loans: { currentPage: 1, pageSize: 10 }
+    },
     async init() {
         this.bindEvents();
+        this.loadTheme();
         // Escuchar el estado de autenticación
         db.onAuthChange(async (user) => {
             const loginScreen = document.getElementById('login-screen');
@@ -154,6 +160,17 @@ const app = {
             return 0;
         });
 
+        this.updateSortIcons('dashboard');
+        this.updatePaginationUI('dashboard', criticos.length);
+        
+        // Aplicar paginación
+        const { currentPage, pageSize } = this.paginationConfig.dashboard;
+        if (pageSize !== 'all') {
+            const start = (currentPage - 1) * parseInt(pageSize);
+            const end = start + parseInt(pageSize);
+            criticos = criticos.slice(start, end);
+        }
+
         const tbody = document.getElementById('critical-equipments');
         tbody.innerHTML = '';
         criticos.forEach(e => {
@@ -167,8 +184,6 @@ const app = {
                 </tr>
             `;
         });
-        
-        this.updateSortIcons('dashboard');
     },
 
     // Inventory
@@ -211,7 +226,19 @@ const app = {
             return 0;
         });
 
-        equipos.forEach(eq => {
+        this.updateSortIcons('inventory');
+        this.updatePaginationUI('inventory', equipos.length);
+
+        // Aplicar paginación
+        const { currentPage, pageSize } = this.paginationConfig.inventory;
+        let pagedEquipos = equipos;
+        if (pageSize !== 'all') {
+            const start = (currentPage - 1) * parseInt(pageSize);
+            const end = start + parseInt(pageSize);
+            pagedEquipos = equipos.slice(start, end);
+        }
+
+        pagedEquipos.forEach(eq => {
             let statusClass = 'badge-success';
             if(eq.estado === 'En Reparación') statusClass = 'badge-warning';
             if(eq.estado === 'De Baja') statusClass = 'badge-danger';
@@ -257,8 +284,6 @@ const app = {
                 </tr>
             `;
         });
-
-        this.updateSortIcons('inventory');
     },
 
     viewEquipment(id) {
@@ -558,7 +583,19 @@ const app = {
             return 0;
         });
 
-        prestamosData.forEach(p => {
+        this.updateSortIcons('loans');
+        this.updatePaginationUI('loans', prestamosData.length);
+
+        // Aplicar paginación
+        const { currentPage, pageSize } = this.paginationConfig.loans;
+        let pagedLoans = prestamosData;
+        if (pageSize !== 'all') {
+            const start = (currentPage - 1) * parseInt(pageSize);
+            const end = start + parseInt(pageSize);
+            pagedLoans = prestamosData.slice(start, end);
+        }
+
+        pagedLoans.forEach(p => {
             tbody.innerHTML += `
                 <tr>
                     <td><strong>${p.assetTag}</strong> - ${p.equipoNombre}</td>
@@ -573,8 +610,6 @@ const app = {
                 </tr>
             `;
         });
-        
-        this.updateSortIcons('loans');
     },
 
     sortData(section, column) {
@@ -614,6 +649,73 @@ const app = {
                 }
             }
         });
+    },
+
+    // Pagination Helpers
+    changePageSize(section, size) {
+        this.paginationConfig[section].pageSize = size;
+        this.paginationConfig[section].currentPage = 1;
+        if (section === 'dashboard') this.loadDashboard();
+        if (section === 'inventory') this.loadInventory();
+        if (section === 'loans') this.loadLoans();
+    },
+
+    changePage(section, delta) {
+        this.paginationConfig[section].currentPage += delta;
+        if (section === 'dashboard') this.loadDashboard();
+        if (section === 'inventory') this.loadInventory();
+        if (section === 'loans') this.loadLoans();
+    },
+
+    updatePaginationUI(section, totalItems) {
+        const config = this.paginationConfig[section];
+        const container = document.getElementById(`pagination-${section}`);
+        if (!container) return;
+
+        if (config.pageSize === 'all') {
+            container.querySelector('.pagination-controls').style.display = 'none';
+            return;
+        }
+
+        container.querySelector('.pagination-controls').style.display = 'flex';
+        const totalPages = Math.ceil(totalItems / parseInt(config.pageSize)) || 1;
+        
+        // Corregir página actual si está fuera de rango
+        if (config.currentPage > totalPages) config.currentPage = totalPages;
+        if (config.currentPage < 1) config.currentPage = 1;
+
+        container.querySelector('.page-numbers').innerText = `Página ${config.currentPage} de ${totalPages}`;
+        
+        const prevBtn = container.querySelector('button:first-of-type');
+        const nextBtn = container.querySelector('button:last-of-type');
+        
+        prevBtn.disabled = config.currentPage === 1;
+        nextBtn.disabled = config.currentPage === totalPages;
+    },
+
+    // Theme Helpers
+    toggleTheme() {
+        const isDark = document.body.classList.toggle('dark-theme');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        this.updateThemeIcon();
+    },
+
+    loadTheme() {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+        this.updateThemeIcon();
+    },
+
+    updateThemeIcon() {
+        const icon = document.querySelector('#theme-toggle i');
+        if (!icon) return;
+        if (document.body.classList.contains('dark-theme')) {
+            icon.className = 'fa-solid fa-sun';
+        } else {
+            icon.className = 'fa-solid fa-moon';
+        }
     },
 
     openLoanModal() {
