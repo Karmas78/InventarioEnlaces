@@ -27,6 +27,8 @@ const app = {
 
                 try {
                     await db.initData();
+                    this.loadTheme();
+                    this.syncPaginationSelects();
                     this.loadDashboard();
                     this.loadInventory();
                     this.loadLoans();
@@ -161,19 +163,21 @@ const app = {
         });
 
         this.updateSortIcons('dashboard');
-        this.updatePaginationUI('dashboard', criticos.length);
         
         // Aplicar paginación
-        const { currentPage, pageSize } = this.paginationConfig.dashboard;
-        if (pageSize !== 'all') {
-            const start = (currentPage - 1) * parseInt(pageSize);
-            const end = start + parseInt(pageSize);
-            criticos = criticos.slice(start, end);
+        const config = this.paginationConfig.dashboard;
+        this.updatePaginationUI('dashboard', criticos.length);
+        
+        let pagedCriticos = criticos;
+        if (config.pageSize !== 'all') {
+            const size = parseInt(config.pageSize);
+            const start = (config.currentPage - 1) * size;
+            pagedCriticos = criticos.slice(start, start + size);
         }
 
         const tbody = document.getElementById('critical-equipments');
         tbody.innerHTML = '';
-        criticos.forEach(e => {
+        pagedCriticos.forEach(e => {
             const statusClass = e.estado === 'De Baja' ? 'badge-critical' : 'badge-warning';
             tbody.innerHTML += `
                 <tr>
@@ -188,7 +192,7 @@ const app = {
 
     // Inventory
     loadInventory(filteredData = null) {
-        const equipos = filteredData || db.getEquipos();
+        const equipos = filteredData !== null ? filteredData : db.getEquipos();
         const prestamos = db.getAsignaciones(true); // Activos
         const funcionarios = db.getFuncionarios();
         const tbody = document.getElementById('inventory-table-body');
@@ -227,15 +231,16 @@ const app = {
         });
 
         this.updateSortIcons('inventory');
+        
+        // Aplicar paginación
+        const config = this.paginationConfig.inventory;
         this.updatePaginationUI('inventory', equipos.length);
 
-        // Aplicar paginación
-        const { currentPage, pageSize } = this.paginationConfig.inventory;
         let pagedEquipos = equipos;
-        if (pageSize !== 'all') {
-            const start = (currentPage - 1) * parseInt(pageSize);
-            const end = start + parseInt(pageSize);
-            pagedEquipos = equipos.slice(start, end);
+        if (config.pageSize !== 'all') {
+            const size = parseInt(config.pageSize);
+            const start = (config.currentPage - 1) * size;
+            pagedEquipos = equipos.slice(start, start + size);
         }
 
         pagedEquipos.forEach(eq => {
@@ -377,6 +382,7 @@ const app = {
     },
 
     filterInventory(searchTerm = '') {
+        this.paginationConfig.inventory.currentPage = 1; // Reset a página 1 al filtrar
         let equipos = db.getEquipos();
         const term = (searchTerm || document.getElementById('global-search').value).toLowerCase();
         const cat = document.getElementById('filter-category').value;
@@ -584,15 +590,16 @@ const app = {
         });
 
         this.updateSortIcons('loans');
+        
+        // Aplicar paginación
+        const config = this.paginationConfig.loans;
         this.updatePaginationUI('loans', prestamosData.length);
 
-        // Aplicar paginación
-        const { currentPage, pageSize } = this.paginationConfig.loans;
         let pagedLoans = prestamosData;
-        if (pageSize !== 'all') {
-            const start = (currentPage - 1) * parseInt(pageSize);
-            const end = start + parseInt(pageSize);
-            pagedLoans = prestamosData.slice(start, end);
+        if (config.pageSize !== 'all') {
+            const size = parseInt(config.pageSize);
+            const start = (config.currentPage - 1) * size;
+            pagedLoans = prestamosData.slice(start, start + size);
         }
 
         pagedLoans.forEach(p => {
@@ -716,6 +723,15 @@ const app = {
         } else {
             icon.className = 'fa-solid fa-moon';
         }
+    },
+
+    syncPaginationSelects() {
+        ['dashboard', 'inventory', 'loans'].forEach(section => {
+            const select = document.querySelector(`#pagination-${section} .pagination-select`);
+            if (select) {
+                select.value = this.paginationConfig[section].pageSize;
+            }
+        });
     },
 
     openLoanModal() {
