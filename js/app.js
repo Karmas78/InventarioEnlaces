@@ -206,7 +206,7 @@ const app = {
                         </div>
                     </td>
                     <td>
-                        <strong>${eq.nombre}</strong><br>
+                        <strong>${eq.nombre}</strong>${eq.observaciones ? ` <i class="fa-solid fa-circle-info" title="${eq.observaciones}" style="color:var(--primary-color); cursor:help; font-size:12px;"></i>` : ''}<br>
                         <small class="text-muted">${eq.marca} ${eq.modelo}</small>
                     </td>
                     <td>${eq.categoria}</td>
@@ -278,6 +278,7 @@ const app = {
                 document.getElementById('eq-date').value = eq.fechaAdquisicion;
                 document.getElementById('eq-status').value = eq.estado;
                 document.getElementById('eq-location').value = eq.ubicacion || '';
+                document.getElementById('eq-notes').value = eq.observaciones || '';
                 
                 if (eq.foto) {
                     document.getElementById('eq-photo-base64').value = eq.foto;
@@ -292,6 +293,7 @@ const app = {
             document.getElementById('equipment-modal-title').innerText = 'Registrar Equipo';
             document.getElementById('eq-id').value = '';
             document.getElementById('eq-location').value = '';
+            document.getElementById('eq-notes').value = '';
             document.getElementById('eq-photo-base64').value = '';
             document.getElementById('eq-photo-input-gallery').value = '';
             document.getElementById('eq-photo-input-camera').value = '';
@@ -324,6 +326,7 @@ const app = {
                 fechaAdquisicion: document.getElementById('eq-date').value,
                 estado: document.getElementById('eq-status').value,
                 ubicacion: document.getElementById('eq-location').value || 'Sin asignar',
+                observaciones: document.getElementById('eq-notes').value || '',
                 foto: document.getElementById('eq-photo-base64').value || null
             });
             this.showToast('Equipo guardado exitosamente');
@@ -664,7 +667,8 @@ const app = {
             'Modelo': e.modelo || '',
             'Fecha Adquisición': e.fechaAdquisicion || '',
             'Estado': e.estado || '',
-            'Ubicación': e.ubicacion || ''
+            'Ubicación': e.ubicacion || '',
+            'Observaciones': e.observaciones || ''
         }));
 
         // Prepare Préstamos
