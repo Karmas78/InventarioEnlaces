@@ -1,6 +1,11 @@
 import { db } from './db.js';
 
 const app = {
+    sortConfig: {
+        dashboard: { column: 'assetTag', direction: 'asc' },
+        inventory: { column: 'assetTag', direction: 'asc' },
+        loans: { column: 'equipoNombre', direction: 'asc' }
+    },
     async init() {
         this.bindEvents();
         // Escuchar el estado de autenticación
@@ -130,10 +135,23 @@ const app = {
 
         // Equipos críticos / Antiguos (> 3 years)
         const currentYear = new Date().getFullYear();
-        const criticos = equipos.filter(e => {
+        let criticos = equipos.filter(e => {
             if (e.estado === 'De Baja') return true;
             const adqYear = new Date(e.fechaAdquisicion).getFullYear();
             return (currentYear - adqYear) >= 3;
+        });
+
+        // Aplicar ordenamiento
+        const sort = this.sortConfig.dashboard;
+        criticos.sort((a, b) => {
+            let valA = a[sort.column] || '';
+            let valB = b[sort.column] || '';
+            if (typeof valA === 'string') valA = valA.toLowerCase();
+            if (typeof valB === 'string') valB = valB.toLowerCase();
+            
+            if (valA < valB) return sort.direction === 'asc' ? -1 : 1;
+            if (valA > valB) return sort.direction === 'asc' ? 1 : -1;
+            return 0;
         });
 
         const tbody = document.getElementById('critical-equipments');
@@ -149,6 +167,8 @@ const app = {
                 </tr>
             `;
         });
+        
+        this.updateSortIcons('dashboard');
     },
 
     // Inventory
@@ -177,6 +197,19 @@ const app = {
                 locationSelect.appendChild(opt);
             });
         }
+
+        // Aplicar ordenamiento
+        const sort = this.sortConfig.inventory;
+        equipos.sort((a, b) => {
+            let valA = a[sort.column] || '';
+            let valB = b[sort.column] || '';
+            if (typeof valA === 'string') valA = valA.toLowerCase();
+            if (typeof valB === 'string') valB = valB.toLowerCase();
+            
+            if (valA < valB) return sort.direction === 'asc' ? -1 : 1;
+            if (valA > valB) return sort.direction === 'asc' ? 1 : -1;
+            return 0;
+        });
 
         equipos.forEach(eq => {
             let statusClass = 'badge-success';
@@ -224,6 +257,8 @@ const app = {
                 </tr>
             `;
         });
+
+        this.updateSortIcons('inventory');
     },
 
     viewEquipment(id) {
@@ -489,28 +524,95 @@ const app = {
         const tbody = document.getElementById('loans-table-body');
         tbody.innerHTML = '';
 
-        prestamos.forEach(p => {
+        const prestamosData = prestamos.map(p => {
             const eq = equipos.find(e => e.id === p.equipoId);
             const func = funcionarios.find(f => f.id === p.funcionarioId);
             
             // Highlight overdue
             const isOverdue = new Date(p.fechaDevolucionPrevista) < new Date();
             const statusClass = isOverdue ? 'badge-danger' : 'badge-warning';
-            const statusText = isOverdue ? 'Atrasado' : 'En Préstamo';
+            const statusText = isOverdue ? 'En Préstamo' : 'En Préstamo'; 
 
+            return {
+                ...p,
+                equipoNombre: eq ? eq.nombre : 'Desconocido',
+                funcionarioNombre: func ? func.nombre : 'Desconocido',
+                assetTag: eq ? eq.assetTag : 'N/A',
+                departamento: func ? func.departamento : '',
+                statusClass,
+                statusText,
+                isOverdue
+            };
+        });
+
+        // Aplicar ordenamiento
+        const sort = this.sortConfig.loans;
+        prestamosData.sort((a, b) => {
+            let valA = a[sort.column] || '';
+            let valB = b[sort.column] || '';
+            if (typeof valA === 'string') valA = valA.toLowerCase();
+            if (typeof valB === 'string') valB = valB.toLowerCase();
+            
+            if (valA < valB) return sort.direction === 'asc' ? -1 : 1;
+            if (valA > valB) return sort.direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        prestamosData.forEach(p => {
             tbody.innerHTML += `
                 <tr>
-                    <td><strong>${eq.assetTag}</strong> - ${eq.nombre}</td>
-                    <td>${func.nombre} (${func.departamento})</td>
+                    <td><strong>${p.assetTag}</strong> - ${p.equipoNombre}</td>
+                    <td>${p.funcionarioNombre} (${p.departamento})</td>
                     <td>${p.fechaEntrega}</td>
-                    <td class="${isOverdue ? 'text-danger fw-bold' : ''}">${p.fechaDevolucionPrevista}</td>
-                    <td><span class="badge-status ${statusClass}">${statusText}</span></td>
+                    <td class="${p.isOverdue ? 'text-danger fw-bold' : ''}">${p.fechaDevolucionPrevista}</td>
+                    <td><span class="badge-status ${p.statusClass}">${p.statusText}</span></td>
                     <td style="display: flex; gap: 5px; align-items: center;">
-                        <button class="btn btn-sm btn-primary" onclick="app.openReturnModal('${p.id}', '${eq.id}')" style="margin-right: 5px;">Devolver</button>
+                        <button class="btn btn-sm btn-primary" onclick="app.openReturnModal('${p.id}', '${p.equipoId}')" style="margin-right: 5px;">Devolver</button>
                         <button class="btn-icon" title="Acta PDF" onclick="app.generatePDF('${p.id}')"><i class="fa-solid fa-file-pdf"></i></button>
                     </td>
                 </tr>
             `;
+        });
+        
+        this.updateSortIcons('loans');
+    },
+
+    sortData(section, column) {
+        const config = this.sortConfig[section];
+        if (config.column === column) {
+            config.direction = config.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            config.column = column;
+            config.direction = 'asc';
+        }
+
+        if (section === 'dashboard') this.loadDashboard();
+        if (section === 'inventory') this.loadInventory();
+        if (section === 'loans') this.loadLoans();
+    },
+
+    updateSortIcons(section) {
+        const config = this.sortConfig[section];
+        const table = section === 'dashboard' ? document.querySelector('#dashboard .data-table') :
+                      section === 'inventory' ? document.querySelector('#inventory .data-table') :
+                      document.querySelector('#loans .data-table');
+        
+        if (!table) return;
+
+        table.querySelectorAll('th').forEach(th => {
+            const icon = th.querySelector('i.fa-sort, i.fa-sort-up, i.fa-sort-down');
+            if (icon) {
+                const onclick = th.getAttribute('onclick') || '';
+                if (onclick.includes(`'${config.column}'`)) {
+                    icon.className = config.direction === 'asc' ? 'fa-solid fa-sort-up' : 'fa-solid fa-sort-down';
+                    icon.style.opacity = '1';
+                    icon.style.color = 'var(--secondary-color)';
+                } else {
+                    icon.className = 'fa-solid fa-sort';
+                    icon.style.opacity = '0.3';
+                    icon.style.color = 'inherit';
+                }
+            }
         });
     },
 

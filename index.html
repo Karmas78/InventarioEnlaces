@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventario Sala de Enlaces - Antigravity</title>
+    <title>Inventario Sala de Enlaces - GervInv</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css?v=3">
@@ -17,7 +17,7 @@
         <div class="login-box">
             <div class="sidebar-header" style="justify-content:center; padding-bottom: 20px; border:none; color: var(--primary-color)">
                 <i class="fa-solid fa-server logo-icon"></i>
-                <h2 style="color:var(--primary-color)">Antigravity<span style="color:var(--secondary-color)">Inv</span></h2>
+                <h2 style="color:var(--primary-color)">Gerv<span style="color:var(--secondary-color)">Inv</span></h2>
             </div>
             <form id="login-form">
                 <div class="form-group">
@@ -40,7 +40,7 @@
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <i class="fa-solid fa-server logo-icon"></i>
-            <h2>Antigravity<span>Inv</span></h2>
+            <h2>Gerv<span>Inv</span></h2>
         </div>
         <nav class="sidebar-nav">
             <a href="#" class="nav-item active" data-target="dashboard"><i class="fa-solid fa-chart-pie"></i> <span>Dashboard</span></a>
@@ -123,10 +123,10 @@
                             <table class="data-table">
                                 <thead>
                                     <tr>
-                                        <th>Asset Tag</th>
-                                        <th>Equipo</th>
-                                        <th>Adquisición</th>
-                                        <th>Estado</th>
+                                        <th style="cursor:pointer;" onclick="app.sortData('dashboard', 'assetTag')">Asset Tag <i class="fa-solid fa-sort"></i></th>
+                                        <th style="cursor:pointer;" onclick="app.sortData('dashboard', 'nombre')">Equipo <i class="fa-solid fa-sort"></i></th>
+                                        <th style="cursor:pointer;" onclick="app.sortData('dashboard', 'fechaAdquisicion')">Adquisición <i class="fa-solid fa-sort"></i></th>
+                                        <th style="cursor:pointer;" onclick="app.sortData('dashboard', 'estado')">Estado <i class="fa-solid fa-sort"></i></th>
                                     </tr>
                                 </thead>
                                 <tbody id="critical-equipments">
@@ -189,11 +189,11 @@
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Asset Tag / Serie</th>
-                                <th>Equipo</th>
-                                <th>Categoría</th>
-                                <th>Ubicación / Asignado A</th>
-                                <th>Estado</th>
+                                <th style="cursor:pointer;" onclick="app.sortData('inventory', 'assetTag')">Asset Tag / Serie <i class="fa-solid fa-sort"></i></th>
+                                <th style="cursor:pointer;" onclick="app.sortData('inventory', 'nombre')">Equipo <i class="fa-solid fa-sort"></i></th>
+                                <th style="cursor:pointer;" onclick="app.sortData('inventory', 'categoria')">Categoría <i class="fa-solid fa-sort"></i></th>
+                                <th style="cursor:pointer;" onclick="app.sortData('inventory', 'ubicacion')">Ubicación <i class="fa-solid fa-sort"></i></th>
+                                <th style="cursor:pointer;" onclick="app.sortData('inventory', 'estado')">Estado <i class="fa-solid fa-sort"></i></th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -218,11 +218,11 @@
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Equipo</th>
-                                <th>Funcionario</th>
-                                <th>Fecha Entrega</th>
-                                <th>Devolución Prevista</th>
-                                <th>Estado</th>
+                                <th style="cursor:pointer;" onclick="app.sortData('loans', 'equipoNombre')">Equipo <i class="fa-solid fa-sort"></i></th>
+                                <th style="cursor:pointer;" onclick="app.sortData('loans', 'funcionarioNombre')">Funcionario <i class="fa-solid fa-sort"></i></th>
+                                <th style="cursor:pointer;" onclick="app.sortData('loans', 'fechaEntrega')">Fecha Entrega <i class="fa-solid fa-sort"></i></th>
+                                <th style="cursor:pointer;" onclick="app.sortData('loans', 'fechaDevolucionPrevista')">Devolución Prevista <i class="fa-solid fa-sort"></i></th>
+                                <th style="cursor:pointer;" onclick="app.sortData('loans', 'estado')">Estado <i class="fa-solid fa-sort"></i></th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -689,7 +689,7 @@
                     <p style="margin:0; font-size:11px; color:#555;">Firma y Timbre</p>
                 </div>
             </div>
-            <p style="text-align:center; margin-top:20px; font-size:10px; color:#999;">Documento generado por AntigravityInv — Sistema de Inventario Sala de Enlaces</p>
+            <p style="text-align:center; margin-top:20px; font-size:10px; color:#999;">Documento generado por GervInv — Sistema de Inventario Sala de Enlaces</p>
         </div>
     </div>
 
@@ -752,7 +752,7 @@
                     <p style="margin:0; font-size:11px; color:#555;">Firma y Timbre</p>
                 </div>
             </div>
-            <p style="text-align:center; margin-top:20px; font-size:10px; color:#999;">Documento generado por AntigravityInv — Sistema de Inventario Sala de Enlaces</p>
+            <p style="text-align:center; margin-top:20px; font-size:10px; color:#999;">Documento generado por GervInv — Sistema de Inventario Sala de Enlaces</p>
         </div>
     </div>
 
