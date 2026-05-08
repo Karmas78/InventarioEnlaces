@@ -315,16 +315,18 @@
                 </div>
 
                 <!-- Gestión de Funcionarios -->
-                <div class="card" style="margin-bottom: 20px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <details class="collapsible-card" style="margin-bottom: 20px;" open>
+                    <summary class="collapsible-header">
                         <h3 style="margin:0;"><i class="fa-solid fa-users" style="color:var(--primary-color)"></i> Gestión de Funcionarios</h3>
-                        <button class="btn btn-primary" onclick="app.openFuncionarioModal()"><i class="fa-solid fa-user-plus"></i> Nuevo Funcionario</button>
+                        <button class="btn btn-primary" onclick="event.preventDefault(); app.openFuncionarioModal()"><i class="fa-solid fa-user-plus"></i> Nuevo Funcionario</button>
+                    </summary>
+                    <div style="padding: 0 20px 20px 20px;">
+                        <p class="text-muted" style="font-size:13px; margin-bottom:14px;">Haz clic en un funcionario para ver opciones de edición o eliminación.</p>
+                        <div id="staff-cards-container" class="staff-grid">
+                            <!-- Dynamic cards -->
+                        </div>
                     </div>
-                    <p class="text-muted" style="font-size:13px; margin-bottom:14px;">Haz clic en un funcionario para ver opciones de edición o eliminación.</p>
-                    <div id="staff-cards-container" class="staff-grid">
-                        <!-- Dynamic cards -->
-                    </div>
-                </div>
+                </details>
 
                 <!-- Gestión de Marcas y Categorías -->
                 <div class="form-grid" style="margin-bottom: 20px;">

@@ -273,7 +273,7 @@ const app = {
 
             const photoHtml = eq.foto ? 
                 `<img src="${eq.foto}" style="width: 45px; height: 45px; border-radius: 8px; object-fit: cover; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">` : 
-                `<div style="width: 45px; height: 45px; border-radius: 8px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; color: #94a3b8;"><i class="fa-solid fa-camera"></i></div>`;
+                `<div style="width: 45px; height: 45px; border-radius: 8px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; color: #94a3b8;"><i class="fa-solid fa-user"></i></div>`;
 
             tbody.innerHTML += `
                 <tr>
@@ -1273,17 +1273,16 @@ const app = {
         }
 
         funcionarios.sort((a, b) => a.nombre.localeCompare(b.nombre)).forEach(f => {
-            const initial = f.nombre.charAt(0).toUpperCase();
             const card = document.createElement('div');
             card.className = 'staff-card';
             card.onclick = () => this.openStaffOptions(f.id);
             card.innerHTML = `
                 <div class="avatar-container">
-                    <div class="avatar-large">${initial}</div>
+                    <div class="avatar-large"><i class="fa-solid fa-user"></i></div>
                 </div>
                 <div class="info">
                     <h4>${f.nombre}</h4>
-                    <p>${f.cargo || 'Funcionario'}</p>
+                    <p style="margin:0 0 5px 0;">${f.cargo || 'Funcionario'}</p>
                     <span class="tag">${f.departamento || 'Sin Depto.'}</span>
                 </div>
             `;
@@ -1296,7 +1295,7 @@ const app = {
         if (!f) return;
 
         const initial = f.nombre.charAt(0).toUpperCase();
-        document.getElementById('staff-options-avatar').innerText = initial;
+        document.getElementById('staff-options-avatar').innerHTML = '<i class="fa-solid fa-user"></i>';
         document.getElementById('staff-options-name').innerText = f.nombre;
         document.getElementById('staff-options-rut').innerText = f.rut;
 
