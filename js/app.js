@@ -253,11 +253,6 @@ const app = {
             pagedEquipos = equipos.slice(start, start + size);
         }
 
-        if (this.viewConfig.inventory === 'grid') {
-            this.renderInventoryGrid(pagedEquipos, prestamos, funcionarios);
-            return;
-        }
-
         pagedEquipos.forEach(eq => {
             let statusClass = 'badge-success';
             if(eq.estado === 'En Reparación') statusClass = 'badge-warning';
@@ -646,8 +641,6 @@ const app = {
             pagedLoans = prestamosData.slice(start, start + size);
         }
 
-        // Grid view removed by user request
-
         pagedLoans.forEach(p => {
             tbody.innerHTML += `
                 <tr>
@@ -746,71 +739,6 @@ const app = {
         nextBtn.disabled = config.currentPage === totalPages;
     },
 
-    toggleView(section, view) {
-        this.viewConfig[section] = view;
-        
-        // Update buttons
-        document.querySelectorAll(`#btn-${section}-list, #btn-${section}-grid`).forEach(btn => btn.classList.remove('active'));
-        document.getElementById(`btn-${section}-${view}`).classList.add('active');
-        
-        // Update containers
-        const tableContainer = document.querySelector(`#${section} .table-responsive`);
-        const gridContainer = document.getElementById(`${section}-grid-container`);
-        
-        if (view === 'list') {
-            tableContainer.style.display = 'block';
-            gridContainer.style.display = 'none';
-        } else {
-            tableContainer.style.display = 'none';
-            gridContainer.style.display = 'grid';
-        }
-        
-        if (section === 'inventory') this.loadInventory();
-    },
-
-    renderInventoryGrid(equipos, prestamosActivos, funcionarios) {
-        const container = document.getElementById('inventory-grid-container');
-        if (!container) return;
-        container.innerHTML = '';
-
-        equipos.forEach(eq => {
-            const statusClass = this.getStatusBadge(eq.estado);
-            const prestamo = prestamosActivos.find(p => p.equipoId === eq.id);
-            const func = prestamo ? funcionarios.find(f => f.id === prestamo.funcionarioId) : null;
-
-            const photoHtml = eq.foto ? 
-                `<img src="${eq.foto}" alt="${eq.nombre}">` : 
-                `<div class="placeholder"><i class="fa-solid fa-laptop"></i></div>`;
-
-            container.innerHTML += `
-                <div class="equipment-card">
-                    <div class="eq-card-image">
-                        <div class="eq-card-status">
-                            <span class="badge-status ${statusClass}">${eq.estado}</span>
-                        </div>
-                        ${photoHtml}
-                    </div>
-                    <div class="eq-card-body">
-                        <div class="eq-card-title">${eq.nombre}</div>
-                        <div class="eq-card-subtitle">${eq.categoria} • ${eq.marca}</div>
-                        <div class="eq-card-meta">
-                            <div class="eq-meta-item"><strong>Asset Tag:</strong> <span>${eq.assetTag}</span></div>
-                            <div class="eq-meta-item"><strong>Ubicación:</strong> <span>${eq.ubicacion || '---'}</span></div>
-                            <div class="eq-meta-item"><strong>Asignado:</strong> <span style="${func ? 'color:var(--secondary-color); font-weight:700;' : ''}">${func ? func.nombre : 'Sin asignar'}</span></div>
-                        </div>
-                    </div>
-                    <div class="eq-card-actions">
-                        <button class="btn-icon" onclick="app.viewEquipment('${eq.id}')" title="Ver Detalles"><i class="fa-solid fa-eye"></i></button>
-                        <button class="btn-icon" onclick="app.editEquipment('${eq.id}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                        <button class="btn-icon" onclick="app.deleteEquipment('${eq.id}')" title="Eliminar" style="color:var(--danger)"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                </div>
-            `;
-        });
-    },
-
-    // renderLoansGrid removed by user request
-
     // Theme Helpers
     toggleTheme() {
         const isDark = document.body.classList.toggle('dark-theme');
@@ -851,7 +779,7 @@ const app = {
         
         const eqSelect = document.getElementById('loan-equipment');
         eqSelect.innerHTML = '<option value="">Seleccione Equipo...</option>' + 
-            equipos.map(e => `<option value="${e.id}">${e.assetTag} - ${e.nombre}</option>`).join('');
+            equipos.map(e => `<option value="${e.id}">${e.assetTag} - ${e.nombre}</option>').join('');
 
         const funSelect = document.getElementById('loan-staff');
         funSelect.innerHTML = '<option value="">Seleccione Funcionario...</option>' + 
@@ -1216,7 +1144,6 @@ const app = {
         });
     },
 
-    // ---- Gestión de Funcionarios ----
     // ---- Gestión de Funcionarios ----
     loadStaff() {
         const funcionarios = db.getFuncionarios();

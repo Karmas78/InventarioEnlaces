@@ -163,10 +163,6 @@
                 <div class="page-header">
                     <h1>Gestión de Equipos</h1>
                     <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-                        <div class="view-toggle">
-                            <button class="btn-icon active" id="btn-inventory-list" onclick="app.toggleView('inventory', 'list')" title="Vista de Lista"><i class="fa-solid fa-list"></i></button>
-                            <button class="btn-icon" id="btn-inventory-grid" onclick="app.toggleView('inventory', 'grid')" title="Vista de Cuadrícula"><i class="fa-solid fa-grip"></i></button>
-                        </div>
                         <button class="btn btn-secondary" onclick="app.openInventoryReportModal()" title="Generar informe PDF de equipos"><i class="fa-solid fa-file-pdf" style="color:#e74c3c;"></i> Informe PDF</button>
                         <button class="btn btn-primary" onclick="app.openEquipmentModal()"><i class="fa-solid fa-plus"></i> Nuevo Equipo</button>
                     </div>
@@ -206,10 +202,6 @@
                             <!-- Dynamic content -->
                         </tbody>
                     </table>
-                </div>
-
-                <div id="inventory-grid-container" class="equipment-grid" style="display:none; margin-top:20px;">
-                    <!-- Dynamic cards -->
                 </div>
                 <div class="pagination-container" id="pagination-inventory">
                     <div class="pagination-info">
@@ -307,7 +299,7 @@
                 </div>
 
                 <!-- Gestión de Funcionarios -->
-                <details class="collapsible-card" style="margin-bottom: 20px;" open>
+                <details class="collapsible-card" style="margin-bottom: 20px;">
                     <summary class="collapsible-header">
                         <h3 style="margin:0;"><i class="fa-solid fa-users" style="color:var(--primary-color)"></i> Gestión de Funcionarios</h3>
                         <button class="btn btn-primary" onclick="event.preventDefault(); app.openFuncionarioModal()"><i class="fa-solid fa-user-plus"></i> Nuevo Funcionario</button>
@@ -322,7 +314,7 @@
 
                 <!-- Gestión de Marcas y Categorías -->
                 <div class="form-grid" style="margin-bottom: 20px;">
-                    <details class="collapsible-card" open>
+                    <details class="collapsible-card">
                         <summary class="collapsible-header">
                             <h3 style="margin:0;"><i class="fa-solid fa-tags" style="color:var(--secondary-color)"></i> Categorías</h3>
                             <button class="btn btn-sm btn-primary" onclick="event.preventDefault(); app.openCategoriaModal()"><i class="fa-solid fa-plus"></i></button>
@@ -331,7 +323,7 @@
                             <!-- Dynamic tags -->
                         </div>
                     </details>
-                    <details class="collapsible-card" open>
+                    <details class="collapsible-card">
                         <summary class="collapsible-header">
                             <h3 style="margin:0;"><i class="fa-solid fa-copyright" style="color:var(--primary-color)"></i> Marcas</h3>
                             <button class="btn btn-sm btn-primary" onclick="event.preventDefault(); app.openMarcaModal()"><i class="fa-solid fa-plus"></i></button>
