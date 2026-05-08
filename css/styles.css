@@ -1079,29 +1079,90 @@ body.dark-theme .eq-card-actions {
     font-size: 12px;
 }
 
-/* Staff Cards */
+/* Collapsible Cards */
+.collapsible-card {
+    background: var(--surface-color);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.collapsible-card[open] {
+    box-shadow: var(--shadow-md);
+}
+
+.collapsible-header {
+    padding: 16px 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    list-style: none; /* Hide default arrow */
+}
+
+.collapsible-header::-webkit-details-marker {
+    display: none; /* Hide default arrow in Chrome */
+}
+
+.collapsible-header::after {
+    content: '\f078'; /* fa-chevron-down */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 12px;
+    color: var(--text-muted);
+    transition: var(--transition);
+}
+
+.collapsible-card[open] .collapsible-header::after {
+    transform: rotate(180deg);
+}
+
+.collapsible-card .tag-list {
+    padding: 0 20px 20px 20px;
+}
+
+/* Staff Cards - Professional Refinement */
 .staff-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
 }
 
 .staff-card {
     background: var(--surface-color);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius);
-    padding: 16px;
+    border-radius: 12px;
+    padding: 20px;
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 20px;
     transition: var(--transition);
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.staff-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--secondary-color);
+    opacity: 0;
+    transition: var(--transition);
 }
 
 .staff-card:hover {
     border-color: var(--secondary-color);
     box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
+    transform: translateY(-4px);
+}
+
+.staff-card:hover::before {
+    opacity: 1;
 }
 
 .staff-card .avatar-container {
@@ -1109,16 +1170,17 @@ body.dark-theme .eq-card-actions {
 }
 
 .avatar-large {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
+    width: 65px;
+    height: 65px;
+    border-radius: 14px; /* Square with rounded corners for professional look */
     background: var(--primary-color);
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: 26px;
     font-weight: bold;
+    box-shadow: 0 4px 10px rgba(10, 37, 64, 0.2);
 }
 
 .staff-card .info {
@@ -1127,27 +1189,41 @@ body.dark-theme .eq-card-actions {
 }
 
 .staff-card .info h4 {
-    margin: 0 0 4px 0;
-    font-size: 16px;
+    margin: 0 0 6px 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary-color);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .staff-card .info p {
-    margin: 0;
-    font-size: 13px;
+    margin: 0 0 8px 0;
+    font-size: 14px;
     color: var(--text-muted);
 }
 
 .staff-card .info .tag {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 6px;
     font-size: 11px;
-    background: var(--background-color);
-    margin-top: 5px;
-    font-weight: 500;
+    background: rgba(99, 91, 255, 0.08);
+    color: var(--secondary-color);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+body.dark-theme .staff-card .info h4 {
+    color: #fff;
+}
+
+body.dark-theme .avatar-large {
+    background: var(--secondary-color);
 }
 
 /* Tag Lists (Brands/Categories) */

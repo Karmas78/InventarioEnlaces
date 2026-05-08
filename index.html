@@ -40,7 +40,7 @@
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <i class="fa-solid fa-server logo-icon"></i>
-            <h2>Gerv<span>Inv</span></h2>
+                <h2>Gerv<span>Inv</span> <small style="font-size:10px; opacity:0.6; font-weight:normal;">v0.0.21</small></h2>
         </div>
         <nav class="sidebar-nav">
             <a href="#" class="nav-item active" data-target="dashboard"><i class="fa-solid fa-chart-pie"></i> <span>Dashboard</span></a>
@@ -328,24 +328,24 @@
 
                 <!-- Gestión de Marcas y Categorías -->
                 <div class="form-grid" style="margin-bottom: 20px;">
-                    <div class="card">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <details class="collapsible-card" open>
+                        <summary class="collapsible-header">
                             <h3 style="margin:0;"><i class="fa-solid fa-tags" style="color:var(--secondary-color)"></i> Categorías</h3>
-                            <button class="btn btn-sm btn-primary" onclick="app.openCategoriaModal()"><i class="fa-solid fa-plus"></i></button>
-                        </div>
+                            <button class="btn btn-sm btn-primary" onclick="event.preventDefault(); app.openCategoriaModal()"><i class="fa-solid fa-plus"></i></button>
+                        </summary>
                         <div id="categories-list" class="tag-list">
                             <!-- Dynamic tags -->
                         </div>
-                    </div>
-                    <div class="card">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    </details>
+                    <details class="collapsible-card" open>
+                        <summary class="collapsible-header">
                             <h3 style="margin:0;"><i class="fa-solid fa-copyright" style="color:var(--primary-color)"></i> Marcas</h3>
-                            <button class="btn btn-sm btn-primary" onclick="app.openMarcaModal()"><i class="fa-solid fa-plus"></i></button>
-                        </div>
+                            <button class="btn btn-sm btn-primary" onclick="event.preventDefault(); app.openMarcaModal()"><i class="fa-solid fa-plus"></i></button>
+                        </summary>
                         <div id="brands-list" class="tag-list">
                             <!-- Dynamic tags -->
                         </div>
-                    </div>
+                    </details>
                 </div>
 
                 <div class="form-grid">
