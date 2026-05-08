@@ -789,19 +789,18 @@ const app = {
             container.innerHTML += `
                 <div class="equipment-card">
                     <div class="eq-card-image">
-                        ${photoHtml}
                         <div class="eq-card-status">
                             <span class="badge-status ${statusClass}">${eq.estado}</span>
                         </div>
+                        ${photoHtml}
                     </div>
                     <div class="eq-card-body">
-                        <div class="eq-card-title">${eq.nombre}</div>
-                        <div class="eq-card-subtitle">${eq.categoria} • ${eq.marca} ${eq.modelo}</div>
+                        <div class="eq-card-title" title="${eq.nombre}">${eq.nombre}</div>
+                        <div class="eq-card-subtitle">${eq.categoria} • ${eq.marca}</div>
                         <div class="eq-card-meta">
-                            <div class="eq-meta-item"><i class="fa-solid fa-tag"></i> <span><strong>Tag:</strong> ${eq.assetTag}</span></div>
-                            <div class="eq-meta-item"><i class="fa-solid fa-barcode"></i> <span><strong>Serie:</strong> ${eq.serie}</span></div>
-                            <div class="eq-meta-item"><i class="fa-solid fa-location-dot"></i> <span><strong>Ubicación:</strong> ${eq.ubicacion || 'Sin asignar'}</span></div>
-                            ${func ? `<div class="eq-meta-item" style="color:var(--secondary-color)"><i class="fa-solid fa-user"></i> <span><strong>Asignado a:</strong> ${func.nombre}</span></div>` : ''}
+                            <div class="eq-meta-item"><i class="fa-solid fa-tag"></i> <span>Tag: ${eq.assetTag}</span></div>
+                            <div class="eq-meta-item"><i class="fa-solid fa-location-dot"></i> <span>${eq.ubicacion || 'Sin asignar'}</span></div>
+                            ${func ? `<div class="eq-meta-item" style="color:var(--secondary-color); font-weight:600;"><i class="fa-solid fa-user"></i> <span>${func.nombre}</span></div>` : ''}
                         </div>
                     </div>
                     <div class="eq-card-actions">
@@ -826,18 +825,14 @@ const app = {
                     <div class="loan-card-header">
                         <div class="loan-card-user">
                             <div class="avatar-sm">${initial}</div>
-                            <div>
-                                <h4 style="margin:0;">${p.funcionarioNombre}</h4>
-                                <small class="text-muted">${p.departamento}</small>
-                            </div>
+                            <h4 title="${p.funcionarioNombre}">${p.funcionarioNombre}</h4>
                         </div>
-                        <span class="badge-status ${p.statusClass}">${p.statusText}</span>
+                        <span class="badge-status ${p.statusClass}" style="font-size:10px;">${p.statusText}</span>
                     </div>
                     <div class="loan-card-content">
                         <div class="loan-card-eq-info">
-                            <small class="text-muted" style="text-transform:uppercase; font-size:10px; font-weight:bold; letter-spacing:0.5px;">Equipo Asignado</small>
-                            <h4>${p.equipoNombre}</h4>
-                            <p style="font-size:12px; color:var(--text-muted); margin:0;">Asset Tag: <strong>${p.assetTag}</strong></p>
+                            <h4 title="${p.equipoNombre}">${p.equipoNombre}</h4>
+                            <p style="margin:0; opacity:0.8;">Tag: ${p.assetTag}</p>
                         </div>
                         <div class="loan-card-dates">
                             <div class="loan-date-item">
@@ -849,14 +844,9 @@ const app = {
                                 <p class="${p.isOverdue ? 'text-danger' : ''}">${p.fechaDevolucionPrevista}</p>
                             </div>
                         </div>
-                        ${p.observaciones ? `
-                            <div style="margin-top:12px; font-size:12px; color:var(--text-muted); font-style:italic;">
-                                <i class="fa-solid fa-quote-left" style="font-size:10px; opacity:0.5;"></i> ${p.observaciones}
-                            </div>
-                        ` : ''}
                     </div>
                     <div class="loan-card-footer">
-                        <button class="btn btn-sm btn-primary" onclick="app.openReturnModal('${p.id}', '${p.equipoId}')">Devolver Equipo</button>
+                        <button class="btn btn-sm btn-primary" onclick="app.openReturnModal('${p.id}', '${p.equipoId}')">Devolver</button>
                         <button class="btn-icon" title="Acta PDF" onclick="app.generatePDF('${p.id}')"><i class="fa-solid fa-file-pdf"></i></button>
                     </div>
                 </div>
