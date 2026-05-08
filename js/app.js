@@ -56,6 +56,7 @@ const app = {
             loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const btn = document.getElementById('login-btn');
+                if (!btn) return;
                 const originalText = btn.innerHTML;
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Entrando...';
                 btn.disabled = true;
@@ -79,38 +80,52 @@ const app = {
         document.querySelectorAll('.sidebar-nav .nav-item').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
+                const targetId = link.dataset.target;
+                const targetPage = document.getElementById(targetId);
+                if (!targetPage) return;
+
                 document.querySelectorAll('.sidebar-nav .nav-item').forEach(l => l.classList.remove('active'));
                 document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
                 
                 link.classList.add('active');
-                document.getElementById(link.dataset.target).classList.add('active');
+                targetPage.classList.add('active');
                 
-                if(link.dataset.target === 'dashboard') this.loadDashboard();
-                if(link.dataset.target === 'inventory') this.loadInventory();
-                if(link.dataset.target === 'loans') this.loadLoans();
-                if(link.dataset.target === 'history') this.loadHistory();
-                if(link.dataset.target === 'settings') {
+                if(targetId === 'dashboard') this.loadDashboard();
+                if(targetId === 'inventory') this.loadInventory();
+                if(targetId === 'loans') this.loadLoans();
+                if(targetId === 'history') this.loadHistory();
+                if(targetId === 'settings') {
                     this.loadStaff();
                     this.loadBrands();
                     this.loadCategories();
                 }
                 
                 if (window.innerWidth <= 768) {
-                    document.getElementById('sidebar').classList.remove('active');
-                    document.querySelector('.sidebar-overlay').classList.remove('active');
+                    const sidebar = document.getElementById('sidebar');
+                    const overlay = document.querySelector('.sidebar-overlay');
+                    if(sidebar) sidebar.classList.remove('active');
+                    if(overlay) overlay.classList.remove('active');
                 }
             });
         });
 
         // Search
-        document.getElementById('global-search').addEventListener('input', (e) => {
-            this.filterInventory(e.target.value);
-        });
+        const searchInput = document.getElementById('global-search');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.filterInventory(e.target.value);
+            });
+        }
 
         // Filters
-        document.getElementById('filter-category').addEventListener('change', () => this.filterInventory());
-        document.getElementById('filter-status').addEventListener('change', () => this.filterInventory());
-        document.getElementById('filter-location').addEventListener('change', () => this.filterInventory());
+        const filterCat = document.getElementById('filter-category');
+        if (filterCat) filterCat.addEventListener('change', () => this.filterInventory());
+        
+        const filterStat = document.getElementById('filter-status');
+        if (filterStat) filterStat.addEventListener('change', () => this.filterInventory());
+        
+        const filterLoc = document.getElementById('filter-location');
+        if (filterLoc) filterLoc.addEventListener('change', () => this.filterInventory());
     },
 
     showToast(message, type = 'success') {
@@ -1156,7 +1171,7 @@ const app = {
             return;
         }
 
-        funcionarios.sort((a, b) => a.nombre.localeCompare(b.nombre)).forEach(f => {
+        funcionarios.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || '')).forEach(f => {
             const card = document.createElement('div');
             card.className = 'staff-card';
             card.onclick = () => this.openStaffOptions(f.id);
@@ -1449,5 +1464,12 @@ const app = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => app.init());
-window.app = app; // Exponer la app al ámbito global para los botones en el HTML
+window.app = app;
+
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        app.init();
+    } catch (e) {
+        console.error("App init error:", e);
+    }
+});
