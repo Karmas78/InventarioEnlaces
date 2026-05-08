@@ -281,7 +281,7 @@ const app = {
                         ${asignadoA}
                     </td>
                     <td><span class="badge-status ${statusClass}">${eq.estado}</span></td>
-                    <td>
+                    <td class="actions-cell">
                         <button class="btn-icon" onclick="app.viewEquipment('${eq.id}')" title="Ver Detalles"><i class="fa-solid fa-eye"></i></button>
                         <button class="btn-icon" onclick="app.duplicateEquipment('${eq.id}')" title="Duplicar Equipo"><i class="fa-solid fa-copy"></i></button>
                         <button class="btn-icon" onclick="app.editEquipment('${eq.id}')" title="Editar"><i class="fa-solid fa-pen"></i></button>

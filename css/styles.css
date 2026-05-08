@@ -381,6 +381,13 @@ body {
     background-color: var(--background-color);
 }
 
+.actions-column, .actions-cell {
+    white-space: nowrap !important;
+    text-align: right !important;
+    width: 1%;
+    min-width: 150px;
+}
+
 .badge-status {
     padding: 4px 10px;
     border-radius: 20px;
