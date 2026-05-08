@@ -646,10 +646,7 @@ const app = {
             pagedLoans = prestamosData.slice(start, start + size);
         }
 
-        if (this.viewConfig.loans === 'grid') {
-            this.renderLoansGrid(pagedLoans);
-            return;
-        }
+        // Grid view removed by user request
 
         pagedLoans.forEach(p => {
             tbody.innerHTML += `
@@ -769,7 +766,6 @@ const app = {
         }
         
         if (section === 'inventory') this.loadInventory();
-        if (section === 'loans') this.loadLoans();
     },
 
     renderInventoryGrid(equipos, prestamosActivos, funcionarios) {
@@ -795,12 +791,12 @@ const app = {
                         ${photoHtml}
                     </div>
                     <div class="eq-card-body">
-                        <div class="eq-card-title" title="${eq.nombre}">${eq.nombre}</div>
+                        <div class="eq-card-title">${eq.nombre}</div>
                         <div class="eq-card-subtitle">${eq.categoria} • ${eq.marca}</div>
                         <div class="eq-card-meta">
-                            <div class="eq-meta-item"><i class="fa-solid fa-tag"></i> <span>Tag: ${eq.assetTag}</span></div>
-                            <div class="eq-meta-item"><i class="fa-solid fa-location-dot"></i> <span>${eq.ubicacion || 'Sin asignar'}</span></div>
-                            ${func ? `<div class="eq-meta-item" style="color:var(--secondary-color); font-weight:600;"><i class="fa-solid fa-user"></i> <span>${func.nombre}</span></div>` : ''}
+                            <div class="eq-meta-item"><strong>Asset Tag:</strong> <span>${eq.assetTag}</span></div>
+                            <div class="eq-meta-item"><strong>Ubicación:</strong> <span>${eq.ubicacion || '---'}</span></div>
+                            <div class="eq-meta-item"><strong>Asignado:</strong> <span style="${func ? 'color:var(--secondary-color); font-weight:700;' : ''}">${func ? func.nombre : 'Sin asignar'}</span></div>
                         </div>
                     </div>
                     <div class="eq-card-actions">
@@ -813,46 +809,7 @@ const app = {
         });
     },
 
-    renderLoansGrid(prestamosData) {
-        const container = document.getElementById('loans-grid-container');
-        if (!container) return;
-        container.innerHTML = '';
-
-        prestamosData.forEach(p => {
-            const initial = p.funcionarioNombre.charAt(0).toUpperCase();
-            container.innerHTML += `
-                <div class="loan-card ${p.isOverdue ? 'overdue' : ''}">
-                    <div class="loan-card-header">
-                        <div class="loan-card-user">
-                            <div class="avatar-sm">${initial}</div>
-                            <h4 title="${p.funcionarioNombre}">${p.funcionarioNombre}</h4>
-                        </div>
-                        <span class="badge-status ${p.statusClass}" style="font-size:10px;">${p.statusText}</span>
-                    </div>
-                    <div class="loan-card-content">
-                        <div class="loan-card-eq-info">
-                            <h4 title="${p.equipoNombre}">${p.equipoNombre}</h4>
-                            <p style="margin:0; opacity:0.8;">Tag: ${p.assetTag}</p>
-                        </div>
-                        <div class="loan-card-dates">
-                            <div class="loan-date-item">
-                                <label>Entrega</label>
-                                <p>${p.fechaEntrega}</p>
-                            </div>
-                            <div class="loan-date-item">
-                                <label>Devolución</label>
-                                <p class="${p.isOverdue ? 'text-danger' : ''}">${p.fechaDevolucionPrevista}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="loan-card-footer">
-                        <button class="btn btn-sm btn-primary" onclick="app.openReturnModal('${p.id}', '${p.equipoId}')">Devolver</button>
-                        <button class="btn-icon" title="Acta PDF" onclick="app.generatePDF('${p.id}')"><i class="fa-solid fa-file-pdf"></i></button>
-                    </div>
-                </div>
-            `;
-        });
-    },
+    // renderLoansGrid removed by user request
 
     // Theme Helpers
     toggleTheme() {

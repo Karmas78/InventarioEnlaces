@@ -235,10 +235,6 @@
                 <div class="page-header">
                     <h1>Sistema de Préstamos</h1>
                     <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-                        <div class="view-toggle">
-                            <button class="btn-icon active" id="btn-loans-list" onclick="app.toggleView('loans', 'list')" title="Vista de Lista"><i class="fa-solid fa-list"></i></button>
-                            <button class="btn-icon" id="btn-loans-grid" onclick="app.toggleView('loans', 'grid')" title="Vista de Cuadrícula"><i class="fa-solid fa-grip"></i></button>
-                        </div>
                         <button class="btn btn-secondary" onclick="app.generateLoansReportPDF()" title="Generar informe PDF de préstamos activos"><i class="fa-solid fa-file-pdf" style="color:#e74c3c;"></i> Informe PDF</button>
                         <button class="btn btn-primary" onclick="app.openLoanModal()"><i class="fa-solid fa-handshake"></i> Asignar Equipo</button>
                     </div>
@@ -260,10 +256,6 @@
                             <!-- Dynamic content -->
                         </tbody>
                     </table>
-                </div>
-
-                <div id="loans-grid-container" class="loan-grid" style="display:none; margin-top:20px;">
-                    <!-- Dynamic cards -->
                 </div>
                 <div class="pagination-container" id="pagination-loans">
                     <div class="pagination-info">
