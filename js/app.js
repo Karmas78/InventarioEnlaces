@@ -283,6 +283,7 @@ const app = {
                     <td><span class="badge-status ${statusClass}">${eq.estado}</span></td>
                     <td>
                         <button class="btn-icon" onclick="app.viewEquipment('${eq.id}')" title="Ver Detalles"><i class="fa-solid fa-eye"></i></button>
+                        <button class="btn-icon" onclick="app.duplicateEquipment('${eq.id}')" title="Duplicar Equipo"><i class="fa-solid fa-copy"></i></button>
                         <button class="btn-icon" onclick="app.editEquipment('${eq.id}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
                         <button class="btn-icon" onclick="app.deleteEquipment('${eq.id}')" title="Eliminar" style="color:var(--danger)"><i class="fa-solid fa-trash"></i></button>
                     </td>
@@ -364,6 +365,34 @@ const app = {
 
     editEquipment(id) {
         this.openEquipmentModal(id);
+    },
+
+    duplicateEquipment(id) {
+        const eq = db.getEquipos().find(e => e.id === id);
+        if (!eq) return;
+
+        // Abrimos el modal como "Nuevo Equipo" (esto resetea el formulario)
+        this.openEquipmentModal();
+        
+        // El título ya está puesto como "Registrar Equipo" por openEquipmentModal()
+        // Ahora poblamos los campos que queremos copiar
+        document.getElementById('eq-name').value = eq.nombre || '';
+        document.getElementById('eq-category').value = eq.categoria || '';
+        document.getElementById('eq-brand').value = eq.marca || '';
+        document.getElementById('eq-model').value = eq.modelo || '';
+        document.getElementById('eq-date').value = eq.fechaAdquisicion || '';
+        document.getElementById('eq-status').value = eq.estado || 'Operativo';
+        document.getElementById('eq-location').value = eq.ubicacion || '';
+        document.getElementById('eq-notes').value = eq.observaciones || '';
+        
+        // Aseguramos que los campos únicos estén vacíos
+        document.getElementById('eq-id').value = '';
+        document.getElementById('eq-asset').value = '';
+        document.getElementById('eq-serial').value = '';
+        document.getElementById('eq-photo-base64').value = '';
+        document.getElementById('eq-photo-preview').style.display = 'none';
+
+        this.showToast('Datos copiados. Ingresa el nuevo Asset Tag y Serie.', 'info');
     },
 
     async deleteEquipment(id) {
