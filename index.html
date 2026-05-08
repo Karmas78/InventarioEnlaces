@@ -162,7 +162,11 @@
             <section id="inventory" class="page">
                 <div class="page-header">
                     <h1>Gestión de Equipos</h1>
-                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                        <div class="view-toggle">
+                            <button class="btn-icon active" id="btn-inventory-list" onclick="app.toggleView('inventory', 'list')" title="Vista de Lista"><i class="fa-solid fa-list"></i></button>
+                            <button class="btn-icon" id="btn-inventory-grid" onclick="app.toggleView('inventory', 'grid')" title="Vista de Cuadrícula"><i class="fa-solid fa-grip"></i></button>
+                        </div>
                         <button class="btn btn-secondary" onclick="app.openInventoryReportModal()" title="Generar informe PDF de equipos"><i class="fa-solid fa-file-pdf" style="color:#e74c3c;"></i> Informe PDF</button>
                         <button class="btn btn-primary" onclick="app.openEquipmentModal()"><i class="fa-solid fa-plus"></i> Nuevo Equipo</button>
                     </div>
@@ -171,26 +175,7 @@
                 <div class="filters-bar">
                     <select id="filter-category" class="form-control">
                         <option value="">Todas las Categorías</option>
-                        <option value="AIO (All-in-One)">AIO (All-in-One)</option>
-                        <option value="Audífonos">Audífonos</option>
-                        <option value="Cámara">Cámara</option>
-                        <option value="Disco Duro Externo">Disco Duro Externo</option>
-                        <option value="Impresora">Impresora</option>
-                        <option value="Laptop">Laptop</option>
-                        <option value="Micrófono">Micrófono</option>
-                        <option value="Monitor / Pantalla">Monitor / Pantalla</option>
-                        <option value="Mouse">Mouse</option>
-                        <option value="Netbook">Netbook</option>
-                        <option value="PC Escritorio">PC Escritorio</option>
-                        <option value="Parlante">Parlante</option>
-                        <option value="Proyector">Proyector</option>
-                        <option value="Router / Switch">Router / Switch</option>
-                        <option value="Scanner">Scanner</option>
-                        <option value="Tablet">Tablet</option>
-                        <option value="Televisor">Televisor</option>
-                        <option value="Teclado">Teclado</option>
-                        <option value="UPS">UPS</option>
-                        <option value="Otro">Otro</option>
+                        <!-- Dynamic -->
                     </select>
                     <select id="filter-status" class="form-control">
                         <option value="">Todos los Estados</option>
@@ -222,6 +207,10 @@
                         </tbody>
                     </table>
                 </div>
+
+                <div id="inventory-grid-container" class="equipment-grid" style="display:none; margin-top:20px;">
+                    <!-- Dynamic cards -->
+                </div>
                 <div class="pagination-container" id="pagination-inventory">
                     <div class="pagination-info">
                         Mostrar 
@@ -245,7 +234,11 @@
             <section id="loans" class="page">
                 <div class="page-header">
                     <h1>Sistema de Préstamos</h1>
-                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                        <div class="view-toggle">
+                            <button class="btn-icon active" id="btn-loans-list" onclick="app.toggleView('loans', 'list')" title="Vista de Lista"><i class="fa-solid fa-list"></i></button>
+                            <button class="btn-icon" id="btn-loans-grid" onclick="app.toggleView('loans', 'grid')" title="Vista de Cuadrícula"><i class="fa-solid fa-grip"></i></button>
+                        </div>
                         <button class="btn btn-secondary" onclick="app.generateLoansReportPDF()" title="Generar informe PDF de préstamos activos"><i class="fa-solid fa-file-pdf" style="color:#e74c3c;"></i> Informe PDF</button>
                         <button class="btn btn-primary" onclick="app.openLoanModal()"><i class="fa-solid fa-handshake"></i> Asignar Equipo</button>
                     </div>
@@ -267,6 +260,10 @@
                             <!-- Dynamic content -->
                         </tbody>
                     </table>
+                </div>
+
+                <div id="loans-grid-container" class="loan-grid" style="display:none; margin-top:20px;">
+                    <!-- Dynamic cards -->
                 </div>
                 <div class="pagination-container" id="pagination-loans">
                     <div class="pagination-info">
@@ -323,23 +320,31 @@
                         <h3 style="margin:0;"><i class="fa-solid fa-users" style="color:var(--primary-color)"></i> Gestión de Funcionarios</h3>
                         <button class="btn btn-primary" onclick="app.openFuncionarioModal()"><i class="fa-solid fa-user-plus"></i> Nuevo Funcionario</button>
                     </div>
-                    <p class="text-muted" style="font-size:13px; margin-bottom:14px;">Administra el personal autorizado para recibir equipos en préstamo.</p>
-                    <div class="table-responsive">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>RUT</th>
-                                    <th>Cargo</th>
-                                    <th>Departamento</th>
-                                    <th>Correo</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="staff-table-body">
-                                <!-- Dynamic content -->
-                            </tbody>
-                        </table>
+                    <p class="text-muted" style="font-size:13px; margin-bottom:14px;">Haz clic en un funcionario para ver opciones de edición o eliminación.</p>
+                    <div id="staff-cards-container" class="staff-grid">
+                        <!-- Dynamic cards -->
+                    </div>
+                </div>
+
+                <!-- Gestión de Marcas y Categorías -->
+                <div class="form-grid" style="margin-bottom: 20px;">
+                    <div class="card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                            <h3 style="margin:0;"><i class="fa-solid fa-tags" style="color:var(--secondary-color)"></i> Categorías</h3>
+                            <button class="btn btn-sm btn-primary" onclick="app.openCategoriaModal()"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                        <div id="categories-list" class="tag-list">
+                            <!-- Dynamic tags -->
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                            <h3 style="margin:0;"><i class="fa-solid fa-copyright" style="color:var(--primary-color)"></i> Marcas</h3>
+                            <button class="btn btn-sm btn-primary" onclick="app.openMarcaModal()"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                        <div id="brands-list" class="tag-list">
+                            <!-- Dynamic tags -->
+                        </div>
                     </div>
                 </div>
 
@@ -395,54 +400,14 @@
                             <label>Categoría*</label>
                             <select id="eq-category" required class="form-control">
                                 <option value="">Seleccionar...</option>
-                                <option value="AIO (All-in-One)">AIO (All-in-One)</option>
-                                <option value="Audífonos">Audífonos</option>
-                                <option value="Cámara">Cámara</option>
-                                <option value="Disco Duro Externo">Disco Duro Externo</option>
-                                <option value="Impresora">Impresora</option>
-                                <option value="Laptop">Laptop</option>
-                                <option value="Micrófono">Micrófono</option>
-                                <option value="Monitor / Pantalla">Monitor / Pantalla</option>
-                                <option value="Mouse">Mouse</option>
-                                <option value="Netbook">Netbook</option>
-                                <option value="PC Escritorio">PC Escritorio</option>
-                                <option value="Parlante">Parlante</option>
-                                <option value="Proyector">Proyector</option>
-                                <option value="Router / Switch">Router / Switch</option>
-                                <option value="Scanner">Scanner</option>
-                                <option value="Tablet">Tablet</option>
-                                <option value="Televisor">Televisor</option>
-                                <option value="Teclado">Teclado</option>
-                                <option value="UPS">UPS</option>
-                                <option value="Otro">Otro</option>
+                                <!-- Dynamic -->
                             </select>
                         </div>
                         <div class="form-group">
                             <label>Marca</label>
                             <input type="text" id="eq-brand" class="form-control" list="brand-list" placeholder="Selecciona o escribe una marca..." autocomplete="off">
                             <datalist id="brand-list">
-                                <option value="Acer">
-                                <option value="Apple">
-                                <option value="ASUS">
-                                <option value="BenQ">
-                                <option value="Brother">
-                                <option value="Canon">
-                                <option value="Dell">
-                                <option value="Epson">
-                                <option value="Genius">
-                                <option value="HP">
-                                <option value="Huawei">
-                                <option value="LG">
-                                <option value="Lenovo">
-                                <option value="Logitech">
-                                <option value="Microsoft">
-                                <option value="MSI">
-                                <option value="Samsung">
-                                <option value="Sony">
-                                <option value="TP-Link">
-                                <option value="Toshiba">
-                                <option value="ViewSonic">
-                                <option value="Xiaomi">
+                                <!-- Dynamic -->
                             </datalist>
                         </div>
                         <div class="form-group">
@@ -602,6 +567,73 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="app.closeModals()">Cancelar</button>
                 <button class="btn btn-primary" onclick="app.generateInventoryReportPDF()"><i class="fa-solid fa-download"></i> Generar PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Marcas -->
+    <div class="modal-overlay" id="marca-modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 id="marca-modal-title">Gestionar Marca</h2>
+                <button class="btn-close" onclick="app.closeModals()"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="marca-form">
+                    <input type="hidden" id="marca-id">
+                    <div class="form-group">
+                        <label>Nombre de la Marca*</label>
+                        <input type="text" id="marca-nombre" required class="form-control" placeholder="Ej. Acer, HP...">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="app.closeModals()">Cancelar</button>
+                <button class="btn btn-primary" onclick="app.saveMarca()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Categorías -->
+    <div class="modal-overlay" id="categoria-modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 id="categoria-modal-title">Gestionar Categoría</h2>
+                <button class="btn-close" onclick="app.closeModals()"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="categoria-form">
+                    <input type="hidden" id="categoria-id">
+                    <div class="form-group">
+                        <label>Nombre de la Categoría*</label>
+                        <input type="text" id="categoria-nombre" required class="form-control" placeholder="Ej. Laptop, Mouse...">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="app.closeModals()">Cancelar</button>
+                <button class="btn btn-primary" onclick="app.saveCategoria()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Opciones de Funcionario -->
+    <div class="modal-overlay" id="staff-options-modal">
+        <div class="modal-content" style="max-width: 350px;">
+            <div class="modal-header">
+                <h2 id="staff-options-title">Opciones</h2>
+                <button class="btn-close" onclick="app.closeModals()"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="modal-body" style="text-align:center;">
+                <div id="staff-options-info" style="margin-bottom:20px;">
+                    <div class="avatar-large" id="staff-options-avatar"></div>
+                    <h3 id="staff-options-name" style="margin:10px 0 5px 0;"></h3>
+                    <p id="staff-options-rut" class="text-muted"></p>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <button class="btn btn-primary" id="btn-edit-staff"><i class="fa-solid fa-pen"></i> Editar Información</button>
+                    <button class="btn btn-secondary" style="background:var(--danger); color:white; border:none;" id="btn-delete-staff"><i class="fa-solid fa-trash"></i> Eliminar Funcionario</button>
+                </div>
             </div>
         </div>
     </div>

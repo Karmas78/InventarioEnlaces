@@ -840,6 +840,341 @@ body {
     .pagination-container {
         flex-direction: column;
         gap: 15px;
-        text-align: center;
+/* View Toggle */
+.view-toggle {
+    display: flex;
+    background: var(--background-color);
+    padding: 4px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    margin-right: 10px;
+}
+
+.view-toggle .btn-icon {
+    padding: 6px 12px;
+    border-radius: 6px;
+    color: var(--text-muted);
+}
+
+.view-toggle .btn-icon.active {
+    background: var(--surface-color);
+    color: var(--secondary-color);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Equipment Grid */
+.equipment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.equipment-card {
+    background: var(--surface-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: var(--transition);
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.equipment-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--secondary-color);
+}
+
+.eq-card-image {
+    width: 100%;
+    height: 180px;
+    background: #f8fafc;
+    position: relative;
+    overflow: hidden;
+}
+
+.eq-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.eq-card-image .placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #cbd5e1;
+    font-size: 48px;
+}
+
+.eq-card-status {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+}
+
+.eq-card-body {
+    padding: 16px;
+    flex: 1;
+}
+
+.eq-card-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--primary-color);
+}
+
+.eq-card-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.eq-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.eq-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.eq-meta-item i {
+    width: 16px;
+    color: var(--text-muted);
+}
+
+.eq-card-actions {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    background: #fafafa;
+}
+
+body.dark-theme .eq-card-actions {
+    background: #2a2e33;
+}
+
+/* Loan Grid */
+.loan-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.loan-card {
+    background: var(--surface-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    padding: 20px;
+    border-left: 5px solid var(--warning);
+    transition: var(--transition);
+    position: relative;
+}
+
+.loan-card.overdue {
+    border-left-color: var(--danger);
+}
+
+.loan-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.loan-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.loan-card-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.loan-card-user .avatar-sm {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.loan-card-content {
+    margin-bottom: 20px;
+}
+
+.loan-card-eq-info {
+    background: var(--background-color);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.loan-card-eq-info h4 {
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.loan-card-dates {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.loan-date-item label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.loan-date-item p {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.loan-card-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+}
+/* Staff Cards */
+.staff-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.staff-card {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.staff-card:hover {
+    border-color: var(--secondary-color);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.staff-card .avatar-container {
+    flex-shrink: 0;
+}
+
+.avatar-large {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.staff-card .info {
+    flex: 1;
+    min-width: 0;
+}
+
+.staff-card .info h4 {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.staff-card .info p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.staff-card .info .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    background: var(--background-color);
+    margin-top: 5px;
+    font-weight: 500;
+}
+
+/* Tag Lists (Brands/Categories) */
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag-item {
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition);
+}
+
+.tag-item:hover {
+    background: var(--surface-color);
+    border-color: var(--secondary-color);
+}
+
+.tag-item .btn-tag-action {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 2px;
+}
+
+.tag-item .btn-tag-action:hover {
+    color: var(--danger);
+}
+
+.tag-item .btn-tag-edit:hover {
+    color: var(--secondary-color);
+}
+
+/* Mobile specific for cards */
+@media (max-width: 480px) {
+    .staff-grid {
+        grid-template-columns: 1fr;
     }
 }

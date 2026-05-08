@@ -22,7 +22,9 @@ class Database {
             equipos: [],
             funcionarios: [],
             asignaciones: [],
-            historial: []
+            historial: [],
+            marcas: [],
+            categorias: []
         };
     }
 
@@ -44,7 +46,9 @@ class Database {
                 this.fetchCollection('equipos'),
                 this.fetchCollection('funcionarios'),
                 this.fetchCollection('asignaciones'),
-                this.fetchCollection('historial')
+                this.fetchCollection('historial'),
+                this.fetchCollection('marcas'),
+                this.fetchCollection('categorias')
             ]);
             
             // Si la base de datos está vacía, crear los funcionarios por defecto
@@ -56,6 +60,26 @@ class Database {
                 for (const f of defaultFuncs) {
                     await setDoc(doc(firestore, 'funcionarios', f.id), f);
                     this.cache.funcionarios.push(f);
+                }
+            }
+
+            // Datos por defecto para marcas si está vacío
+            if (this.cache.marcas.length === 0) {
+                const defaultBrands = ['Acer', 'Apple', 'ASUS', 'Dell', 'HP', 'Lenovo', 'Samsung', 'Sony', 'Logitech', 'Brother', 'Epson', 'Canon'];
+                for (const name of defaultBrands) {
+                    const id = this.generateId('BR');
+                    await setDoc(doc(firestore, 'marcas', id), { nombre: name });
+                    this.cache.marcas.push({ id, nombre: name });
+                }
+            }
+
+            // Datos por defecto para categorías si está vacío
+            if (this.cache.categorias.length === 0) {
+                const defaultCats = ['Laptop', 'PC Escritorio', 'AIO (All-in-One)', 'Tablet', 'Monitor / Pantalla', 'Proyector', 'Impresora', 'Mouse', 'Teclado', 'Audífonos', 'UPS'];
+                for (const name of defaultCats) {
+                    const id = this.generateId('CT');
+                    await setDoc(doc(firestore, 'categorias', id), { nombre: name });
+                    this.cache.categorias.push({ id, nombre: name });
                 }
             }
         } catch (error) {
@@ -230,6 +254,52 @@ class Database {
         await setDoc(doc(firestore, 'historial', histId), record);
         record.id = histId;
         this.cache.historial.push(record);
+    }
+
+    // Marcas
+    getMarcas() { return this.getTable('marcas'); }
+    async saveMarca(marca) {
+        const marcas = this.getMarcas();
+        if (marcas.find(m => m.nombre.toLowerCase() === marca.nombre.toLowerCase() && m.id !== marca.id)) {
+            throw new Error('La marca ya existe.');
+        }
+        if (marca.id) {
+            await updateDoc(doc(firestore, 'marcas', marca.id), { nombre: marca.nombre });
+            const idx = marcas.findIndex(m => m.id === marca.id);
+            if (idx > -1) marcas[idx].nombre = marca.nombre;
+        } else {
+            marca.id = this.generateId('BR');
+            await setDoc(doc(firestore, 'marcas', marca.id), { nombre: marca.nombre });
+            marcas.push(marca);
+        }
+        return marca;
+    }
+    async eliminarMarca(id) {
+        await deleteDoc(doc(firestore, 'marcas', id));
+        this.cache.marcas = this.cache.marcas.filter(m => m.id !== id);
+    }
+
+    // Categorías
+    getCategorias() { return this.getTable('categorias'); }
+    async saveCategoria(cat) {
+        const cats = this.getCategorias();
+        if (cats.find(c => c.nombre.toLowerCase() === cat.nombre.toLowerCase() && c.id !== cat.id)) {
+            throw new Error('La categoría ya existe.');
+        }
+        if (cat.id) {
+            await updateDoc(doc(firestore, 'categorias', cat.id), { nombre: cat.nombre });
+            const idx = cats.findIndex(c => c.id === cat.id);
+            if (idx > -1) cats[idx].nombre = cat.nombre;
+        } else {
+            cat.id = this.generateId('CT');
+            await setDoc(doc(firestore, 'categorias', cat.id), { nombre: cat.nombre });
+            cats.push(cat);
+        }
+        return cat;
+    }
+    async eliminarCategoria(id) {
+        await deleteDoc(doc(firestore, 'categorias', id));
+        this.cache.categorias = this.cache.categorias.filter(c => c.id !== id);
     }
 }
 

@@ -11,6 +11,10 @@ const app = {
         inventory: { currentPage: 1, pageSize: 10 },
         loans: { currentPage: 1, pageSize: 10 }
     },
+    viewConfig: {
+        inventory: 'list',
+        loans: 'list'
+    },
     async init() {
         this.bindEvents();
         this.loadTheme();
@@ -32,6 +36,8 @@ const app = {
                     this.loadDashboard();
                     this.loadInventory();
                     this.loadLoans();
+                    this.loadBrands();
+                    this.loadCategories();
                     this.updateNotifications();
                 } catch (error) {
                     this.showToast(error.message, 'error');
@@ -83,7 +89,11 @@ const app = {
                 if(link.dataset.target === 'inventory') this.loadInventory();
                 if(link.dataset.target === 'loans') this.loadLoans();
                 if(link.dataset.target === 'history') this.loadHistory();
-                if(link.dataset.target === 'settings') this.loadStaff();
+                if(link.dataset.target === 'settings') {
+                    this.loadStaff();
+                    this.loadBrands();
+                    this.loadCategories();
+                }
                 
                 if (window.innerWidth <= 768) {
                     document.getElementById('sidebar').classList.remove('active');
@@ -241,6 +251,11 @@ const app = {
             const size = parseInt(config.pageSize);
             const start = (config.currentPage - 1) * size;
             pagedEquipos = equipos.slice(start, start + size);
+        }
+
+        if (this.viewConfig.inventory === 'grid') {
+            this.renderInventoryGrid(pagedEquipos, prestamos, funcionarios);
+            return;
         }
 
         pagedEquipos.forEach(eq => {
@@ -631,6 +646,11 @@ const app = {
             pagedLoans = prestamosData.slice(start, start + size);
         }
 
+        if (this.viewConfig.loans === 'grid') {
+            this.renderLoansGrid(pagedLoans);
+            return;
+        }
+
         pagedLoans.forEach(p => {
             tbody.innerHTML += `
                 <tr>
@@ -727,6 +747,121 @@ const app = {
         
         prevBtn.disabled = config.currentPage === 1;
         nextBtn.disabled = config.currentPage === totalPages;
+    },
+
+    toggleView(section, view) {
+        this.viewConfig[section] = view;
+        
+        // Update buttons
+        document.querySelectorAll(`#btn-${section}-list, #btn-${section}-grid`).forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`btn-${section}-${view}`).classList.add('active');
+        
+        // Update containers
+        const tableContainer = document.querySelector(`#${section} .table-responsive`);
+        const gridContainer = document.getElementById(`${section}-grid-container`);
+        
+        if (view === 'list') {
+            tableContainer.style.display = 'block';
+            gridContainer.style.display = 'none';
+        } else {
+            tableContainer.style.display = 'none';
+            gridContainer.style.display = 'grid';
+        }
+        
+        if (section === 'inventory') this.loadInventory();
+        if (section === 'loans') this.loadLoans();
+    },
+
+    renderInventoryGrid(equipos, prestamosActivos, funcionarios) {
+        const container = document.getElementById('inventory-grid-container');
+        if (!container) return;
+        container.innerHTML = '';
+
+        equipos.forEach(eq => {
+            const statusClass = this.getStatusBadge(eq.estado);
+            const prestamo = prestamosActivos.find(p => p.equipoId === eq.id);
+            const func = prestamo ? funcionarios.find(f => f.id === prestamo.funcionarioId) : null;
+
+            const photoHtml = eq.foto ? 
+                `<img src="${eq.foto}" alt="${eq.nombre}">` : 
+                `<div class="placeholder"><i class="fa-solid fa-laptop"></i></div>`;
+
+            container.innerHTML += `
+                <div class="equipment-card">
+                    <div class="eq-card-image">
+                        ${photoHtml}
+                        <div class="eq-card-status">
+                            <span class="badge-status ${statusClass}">${eq.estado}</span>
+                        </div>
+                    </div>
+                    <div class="eq-card-body">
+                        <div class="eq-card-title">${eq.nombre}</div>
+                        <div class="eq-card-subtitle">${eq.categoria} • ${eq.marca} ${eq.modelo}</div>
+                        <div class="eq-card-meta">
+                            <div class="eq-meta-item"><i class="fa-solid fa-tag"></i> <span><strong>Tag:</strong> ${eq.assetTag}</span></div>
+                            <div class="eq-meta-item"><i class="fa-solid fa-barcode"></i> <span><strong>Serie:</strong> ${eq.serie}</span></div>
+                            <div class="eq-meta-item"><i class="fa-solid fa-location-dot"></i> <span><strong>Ubicación:</strong> ${eq.ubicacion || 'Sin asignar'}</span></div>
+                            ${func ? `<div class="eq-meta-item" style="color:var(--secondary-color)"><i class="fa-solid fa-user"></i> <span><strong>Asignado a:</strong> ${func.nombre}</span></div>` : ''}
+                        </div>
+                    </div>
+                    <div class="eq-card-actions">
+                        <button class="btn-icon" onclick="app.viewEquipment('${eq.id}')" title="Ver Detalles"><i class="fa-solid fa-eye"></i></button>
+                        <button class="btn-icon" onclick="app.editEquipment('${eq.id}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn-icon" onclick="app.deleteEquipment('${eq.id}')" title="Eliminar" style="color:var(--danger)"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            `;
+        });
+    },
+
+    renderLoansGrid(prestamosData) {
+        const container = document.getElementById('loans-grid-container');
+        if (!container) return;
+        container.innerHTML = '';
+
+        prestamosData.forEach(p => {
+            const initial = p.funcionarioNombre.charAt(0).toUpperCase();
+            container.innerHTML += `
+                <div class="loan-card ${p.isOverdue ? 'overdue' : ''}">
+                    <div class="loan-card-header">
+                        <div class="loan-card-user">
+                            <div class="avatar-sm">${initial}</div>
+                            <div>
+                                <h4 style="margin:0;">${p.funcionarioNombre}</h4>
+                                <small class="text-muted">${p.departamento}</small>
+                            </div>
+                        </div>
+                        <span class="badge-status ${p.statusClass}">${p.statusText}</span>
+                    </div>
+                    <div class="loan-card-content">
+                        <div class="loan-card-eq-info">
+                            <small class="text-muted" style="text-transform:uppercase; font-size:10px; font-weight:bold; letter-spacing:0.5px;">Equipo Asignado</small>
+                            <h4>${p.equipoNombre}</h4>
+                            <p style="font-size:12px; color:var(--text-muted); margin:0;">Asset Tag: <strong>${p.assetTag}</strong></p>
+                        </div>
+                        <div class="loan-card-dates">
+                            <div class="loan-date-item">
+                                <label>Entrega</label>
+                                <p>${p.fechaEntrega}</p>
+                            </div>
+                            <div class="loan-date-item">
+                                <label>Devolución</label>
+                                <p class="${p.isOverdue ? 'text-danger' : ''}">${p.fechaDevolucionPrevista}</p>
+                            </div>
+                        </div>
+                        ${p.observaciones ? `
+                            <div style="margin-top:12px; font-size:12px; color:var(--text-muted); font-style:italic;">
+                                <i class="fa-solid fa-quote-left" style="font-size:10px; opacity:0.5;"></i> ${p.observaciones}
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="loan-card-footer">
+                        <button class="btn btn-sm btn-primary" onclick="app.openReturnModal('${p.id}', '${p.equipoId}')">Devolver Equipo</button>
+                        <button class="btn-icon" title="Acta PDF" onclick="app.generatePDF('${p.id}')"><i class="fa-solid fa-file-pdf"></i></button>
+                    </div>
+                </div>
+            `;
+        });
     },
 
     // Theme Helpers
@@ -1135,39 +1270,71 @@ const app = {
     },
 
     // ---- Gestión de Funcionarios ----
+    // ---- Gestión de Funcionarios ----
     loadStaff() {
         const funcionarios = db.getFuncionarios();
-        const prestamosActivos = db.getAsignaciones(true);
-        const tbody = document.getElementById('staff-table-body');
-        if (!tbody) return;
-        tbody.innerHTML = '';
+        const container = document.getElementById('staff-cards-container');
+        if (!container) return;
+        container.innerHTML = '';
 
         if (funcionarios.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;"><i class="fa-solid fa-users-slash"></i> No hay funcionarios registrados.</td></tr>`;
+            container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; color:var(--text-muted); padding:40px;"><i class="fa-solid fa-users-slash fa-3x" style="margin-bottom:15px; opacity:0.3;"></i><p>No hay funcionarios registrados.</p></div>`;
             return;
         }
 
-        funcionarios.forEach(f => {
-            const tienePrestamoActivo = prestamosActivos.some(p => p.funcionarioId === f.id);
-            tbody.innerHTML += `
-                <tr>
-                    <td><strong>${f.nombre}</strong></td>
-                    <td><code style="font-size:12px;">${f.rut}</code></td>
-                    <td>${f.cargo || ''}</td>
-                    <td>${f.departamento || ''}</td>
-                    <td><a href="mailto:${f.email || ''}" style="color:var(--primary-color);">${f.email || '—'}</a></td>
-                    <td style="display:flex; gap:6px; align-items:center;">
-                        <button class="btn-icon" onclick="app.openFuncionarioModal('${f.id}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                        <button class="btn-icon" onclick="app.deleteFuncionario('${f.id}')" title="${tienePrestamoActivo ? 'Tiene préstamo activo' : 'Eliminar'}" style="color:var(--danger); ${tienePrestamoActivo ? 'opacity:0.4; cursor:not-allowed;' : ''}" ${tienePrestamoActivo ? 'disabled' : ''}><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>
+        funcionarios.sort((a, b) => a.nombre.localeCompare(b.nombre)).forEach(f => {
+            const initial = f.nombre.charAt(0).toUpperCase();
+            const card = document.createElement('div');
+            card.className = 'staff-card';
+            card.onclick = () => this.openStaffOptions(f.id);
+            card.innerHTML = `
+                <div class="avatar-container">
+                    <div class="avatar-large">${initial}</div>
+                </div>
+                <div class="info">
+                    <h4>${f.nombre}</h4>
+                    <p>${f.cargo || 'Funcionario'}</p>
+                    <span class="tag">${f.departamento || 'Sin Depto.'}</span>
+                </div>
             `;
+            container.appendChild(card);
         });
+    },
+
+    openStaffOptions(id) {
+        const f = db.getFuncionarios().find(func => func.id === id);
+        if (!f) return;
+
+        const initial = f.nombre.charAt(0).toUpperCase();
+        document.getElementById('staff-options-avatar').innerText = initial;
+        document.getElementById('staff-options-name').innerText = f.nombre;
+        document.getElementById('staff-options-rut').innerText = f.rut;
+
+        const btnEdit = document.getElementById('btn-edit-staff');
+        const btnDelete = document.getElementById('btn-delete-staff');
+
+        btnEdit.onclick = () => {
+            this.closeModals();
+            this.openFuncionarioModal(f.id);
+        };
+
+        const tienePrestamoActivo = db.getAsignaciones(true).some(p => p.funcionarioId === f.id);
+        btnDelete.disabled = tienePrestamoActivo;
+        btnDelete.style.opacity = tienePrestamoActivo ? '0.4' : '1';
+        btnDelete.title = tienePrestamoActivo ? 'No se puede eliminar con préstamos activos' : 'Eliminar';
+        
+        btnDelete.onclick = () => {
+            if (tienePrestamoActivo) return;
+            this.closeModals();
+            this.deleteFuncionario(f.id);
+        };
+
+        document.getElementById('staff-options-modal').classList.add('active');
     },
 
     openFuncionarioModal(id = null) {
         const form = document.getElementById('funcionario-form');
-        form.reset();
+        if(form) form.reset();
         document.getElementById('func-id').value = '';
 
         if (id) {
@@ -1227,9 +1394,157 @@ const app = {
         }
     },
 
+    // ---- Categorías ----
+    loadCategories() {
+        const cats = db.getCategorias().sort((a, b) => a.nombre.localeCompare(b.nombre));
+        const list = document.getElementById('categories-list');
+        if (!list) return;
+        list.innerHTML = '';
+        
+        cats.forEach(c => {
+            const item = document.createElement('div');
+            item.className = 'tag-item';
+            item.innerHTML = `
+                <span>${c.nombre}</span>
+                <div style="display:flex; gap:5px;">
+                    <button class="btn-tag-action btn-tag-edit" onclick="app.openCategoriaModal('${c.id}')"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn-tag-action" onclick="app.deleteCategoria('${c.id}')"><i class="fa-solid fa-times"></i></button>
+                </div>
+            `;
+            list.appendChild(item);
+        });
+
+        // Actualizar selects de equipos y filtros
+        this.updateCategorySelects(cats);
+    },
+
+    updateCategorySelects(cats) {
+        const eqSelect = document.getElementById('eq-category');
+        const filterSelect = document.getElementById('filter-category');
+        const currentEqVal = eqSelect.value;
+        const currentFilterVal = filterSelect.value;
+
+        const options = '<option value="">' + (eqSelect.tagName === 'SELECT' ? 'Seleccionar...' : 'Todas') + '</option>' + 
+            cats.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join('');
+
+        eqSelect.innerHTML = options;
+        filterSelect.innerHTML = '<option value="">Todas las Categorías</option>' + cats.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join('');
+        
+        eqSelect.value = currentEqVal;
+        filterSelect.value = currentFilterVal;
+    },
+
+    openCategoriaModal(id = null) {
+        const form = document.getElementById('categoria-form');
+        form.reset();
+        document.getElementById('categoria-id').value = '';
+        if (id) {
+            const cat = db.getCategorias().find(c => c.id === id);
+            if (cat) {
+                document.getElementById('categoria-modal-title').innerText = 'Editar Categoría';
+                document.getElementById('categoria-id').value = cat.id;
+                document.getElementById('categoria-nombre').value = cat.nombre;
+            }
+        } else {
+            document.getElementById('categoria-modal-title').innerText = 'Nueva Categoría';
+        }
+        document.getElementById('categoria-modal').classList.add('active');
+    },
+
+    async saveCategoria() {
+        const nombre = document.getElementById('categoria-nombre').value.trim();
+        const id = document.getElementById('categoria-id').value;
+        if (!nombre) return;
+        try {
+            await db.saveCategoria({ id, nombre });
+            this.showToast('Categoría guardada');
+            this.closeModals();
+            this.loadCategories();
+        } catch (error) {
+            this.showToast(error.message, 'error');
+        }
+    },
+
+    async deleteCategoria(id) {
+        if (!confirm('¿Eliminar esta categoría?')) return;
+        try {
+            await db.eliminarCategoria(id);
+            this.loadCategories();
+        } catch (error) {
+            this.showToast(error.message, 'error');
+        }
+    },
+
+    // ---- Marcas ----
+    loadBrands() {
+        const marcas = db.getMarcas().sort((a, b) => a.nombre.localeCompare(b.nombre));
+        const list = document.getElementById('brands-list');
+        if (!list) return;
+        list.innerHTML = '';
+        
+        marcas.forEach(m => {
+            const item = document.createElement('div');
+            item.className = 'tag-item';
+            item.innerHTML = `
+                <span>${m.nombre}</span>
+                <div style="display:flex; gap:5px;">
+                    <button class="btn-tag-action btn-tag-edit" onclick="app.openMarcaModal('${m.id}')"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn-tag-action" onclick="app.deleteMarca('${m.id}')"><i class="fa-solid fa-times"></i></button>
+                </div>
+            `;
+            list.appendChild(item);
+        });
+
+        // Actualizar datalist de marcas
+        const datalist = document.getElementById('brand-list');
+        datalist.innerHTML = marcas.map(m => `<option value="${m.nombre}">`).join('');
+    },
+
+    openMarcaModal(id = null) {
+        const form = document.getElementById('marca-form');
+        form.reset();
+        document.getElementById('marca-id').value = '';
+        if (id) {
+            const marca = db.getMarcas().find(m => m.id === id);
+            if (marca) {
+                document.getElementById('marca-modal-title').innerText = 'Editar Marca';
+                document.getElementById('marca-id').value = marca.id;
+                document.getElementById('marca-nombre').value = marca.nombre;
+            }
+        } else {
+            document.getElementById('marca-modal-title').innerText = 'Nueva Marca';
+        }
+        document.getElementById('marca-modal').classList.add('active');
+    },
+
+    async saveMarca() {
+        const nombre = document.getElementById('marca-nombre').value.trim();
+        const id = document.getElementById('marca-id').value;
+        if (!nombre) return;
+        try {
+            await db.saveMarca({ id, nombre });
+            this.showToast('Marca guardada');
+            this.closeModals();
+            this.loadBrands();
+        } catch (error) {
+            this.showToast(error.message, 'error');
+        }
+    },
+
+    async deleteMarca(id) {
+        if (!confirm('¿Eliminar esta marca?')) return;
+        try {
+            await db.eliminarMarca(id);
+            this.loadBrands();
+        } catch (error) {
+            this.showToast(error.message, 'error');
+        }
+    },
+
     // Settings
     changeRole(role) {
-        document.querySelector('.user-info .role').innerText = role;
+        const roleEl = document.querySelector('.user-info .role');
+        if(roleEl) roleEl.innerText = role;
         this.showToast(`Rol cambiado a: ${role}`, 'info');
         
         // Block main action buttons if is visualizer
