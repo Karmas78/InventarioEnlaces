@@ -779,7 +779,7 @@ const app = {
         
         const eqSelect = document.getElementById('loan-equipment');
         eqSelect.innerHTML = '<option value="">Seleccione Equipo...</option>' + 
-            equipos.map(e => `<option value="${e.id}">${e.assetTag} - ${e.nombre}</option>').join('');
+            equipos.map(e => `<option value="${e.id}">${e.assetTag} - ${e.nombre}</option>`).join('');
 
         const funSelect = document.getElementById('loan-staff');
         funSelect.innerHTML = '<option value="">Seleccione Funcionario...</option>' + 
