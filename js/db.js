@@ -65,12 +65,14 @@ class Database {
 
             // Datos por defecto para marcas (agregar las que falten)
             const defaultBrands = [
-                'Acer', 'Apple', 'ASUS', 'Dell', 'HP', 'Lenovo', 'Samsung', 'Sony', 
-                'Logitech', 'Brother', 'Epson', 'Canon', 'Microsoft', 'Genius', 
-                'Kingston', 'Western Digital', 'SanDisk', 'TP-Link', 'Cisco', 
-                'ViewSonic', 'AOC', 'BenQ', 'Xiaomi', 'Huawei', 'Toshiba', 
-                'Intel', 'AMD', 'NVIDIA', 'Corsair', 'Razer', 'HyperX', 'SteelSeries',
-                'Western Digital', 'Seagate', 'Crucial'
+                'Dell', 'HP (Hewlett-Packard)', 'Lenovo', 'Acer', 'ASUS', 'Apple', 'MSI', 
+                'Microsoft (Surface)', 'Toshiba / Dynabook', 'Samsung', 'Cisco / Meraki', 
+                'Ubiquiti (UniFi)', 'MikroTik', 'TP-Link', 'D-Link', 'Aruba (HPE)', 
+                'Linksys', 'Netgear', 'Huawei', 'Fortinet', 'Epson', 'ViewSonic', 
+                'BenQ', 'JBL', 'Bose', 'Logitech', 'Sony', 'Yamaha', 'Shure', 
+                'Jabra', 'Brother', 'Canon', 'Kyocera', 'Ricoh', 'Lexmark', 
+                'Zebra', 'Wacom', 'APC (Schneider Electric)', 'Tripp Lite', 
+                'CyberPower', 'Eaton'
             ];
             const existingBrands = this.cache.marcas.map(m => m.nombre.toLowerCase());
             for (const name of defaultBrands) {
@@ -83,14 +85,24 @@ class Database {
 
             // Datos por defecto para categorías (agregar las que falten)
             const defaultCats = [
-                'Laptop', 'PC Escritorio', 'AIO (All-in-One)', 'Tablet', 
-                'Monitor / Pantalla', 'Proyector', 'Impresora', 'Mouse', 
-                'Teclado', 'Audífonos', 'UPS', 'Cámara Web', 'Micrófono', 
-                'Parlantes', 'Disco Duro Externo', 'Pendrive', 'Router / Switch', 
-                'Cable HDMI / VGA', 'Adaptador', 'Tablet Educativa', 
-                'Lector de Código de Barras', 'Servidor', 'Escáner', 'Plotter',
-                'Teléfono IP', 'Tablet Gráfica', 'Docking Station', 
-                'Lector de CD/DVD Externo', 'Kit Robótica', 'Pizarra Interactiva'
+                'PC de Escritorio (Desktop)', 'All-in-One (AIO)', 
+                'Laptop / Notebook (Docente)', 'Laptop / Notebook (Alumno)', 
+                'Chromebook', 'Tablet (Android/iPad)', 'Servidor de Datos', 
+                'Servidor de Aplicaciones (LMS)', 'Monitor / Pantalla', 
+                'Proyector Multimedia', 'Panel Interactivo Táctil', 
+                'Pizarra Digital Interactiva (PDI)', 'Cámara de Documentos (Visualizador)', 
+                'Sistema de Audio / Parlantes', 'Micrófono Inalámbrico', 'Webcam', 
+                'Access Point (Wi-Fi)', 'Switch (Administrable/No administrable)', 
+                'Router', 'Firewall Hardware', 'UPS (Respaldo Energía)', 
+                'Rack / Gabinete de Comunicaciones', 'Central Telefónica (IP/Análoga)', 
+                'Impresora Láser (B/N)', 'Impresora a Color (Inyección/Tanque)', 
+                'Fotocopiadora Multifuncional', 'Escáner de Cama Plana', 
+                'Impresora 3D', 'Kit de Robótica (Arduino/LEGO/Raspberry)', 
+                'Gafas de Realidad Virtual', 'Plotter de Corte', 
+                'Lápiz Digital / Tableta Digitalizadora', 'Microscopio Digital', 
+                'Mouse (Ratón)', 'Teclado', 'Cargador / Adaptador de Corriente', 
+                'Disco Duro Externo', 'Pendrive / Memoria USB', 
+                'Carrito de Carga Móvil (Notebooks/Tablets)'
             ];
             const existingCats = this.cache.categorias.map(c => c.nombre.toLowerCase());
             for (const name of defaultCats) {
