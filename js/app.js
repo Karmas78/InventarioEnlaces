@@ -1469,7 +1469,7 @@ const app = {
                 input.value = ''; // Reset input
             }, 2000);
         }
-    }
+    },
     async refreshSettingsData() {
         this.showToast('Sincronizando datos base...', 'info');
         try {
