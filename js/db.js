@@ -63,20 +63,38 @@ class Database {
                 }
             }
 
-            // Datos por defecto para marcas si está vacío
-            if (this.cache.marcas.length === 0) {
-                const defaultBrands = ['Acer', 'Apple', 'ASUS', 'Dell', 'HP', 'Lenovo', 'Samsung', 'Sony', 'Logitech', 'Brother', 'Epson', 'Canon'];
-                for (const name of defaultBrands) {
+            // Datos por defecto para marcas (agregar las que falten)
+            const defaultBrands = [
+                'Acer', 'Apple', 'ASUS', 'Dell', 'HP', 'Lenovo', 'Samsung', 'Sony', 
+                'Logitech', 'Brother', 'Epson', 'Canon', 'Microsoft', 'Genius', 
+                'Kingston', 'Western Digital', 'SanDisk', 'TP-Link', 'Cisco', 
+                'ViewSonic', 'AOC', 'BenQ', 'Xiaomi', 'Huawei', 'Toshiba', 
+                'Intel', 'AMD', 'NVIDIA', 'Corsair', 'Razer', 'HyperX', 'SteelSeries',
+                'Western Digital', 'Seagate', 'Crucial'
+            ];
+            const existingBrands = this.cache.marcas.map(m => m.nombre.toLowerCase());
+            for (const name of defaultBrands) {
+                if (!existingBrands.includes(name.toLowerCase())) {
                     const id = this.generateId('BR');
                     await setDoc(doc(firestore, 'marcas', id), { nombre: name });
                     this.cache.marcas.push({ id, nombre: name });
                 }
             }
 
-            // Datos por defecto para categorías si está vacío
-            if (this.cache.categorias.length === 0) {
-                const defaultCats = ['Laptop', 'PC Escritorio', 'AIO (All-in-One)', 'Tablet', 'Monitor / Pantalla', 'Proyector', 'Impresora', 'Mouse', 'Teclado', 'Audífonos', 'UPS'];
-                for (const name of defaultCats) {
+            // Datos por defecto para categorías (agregar las que falten)
+            const defaultCats = [
+                'Laptop', 'PC Escritorio', 'AIO (All-in-One)', 'Tablet', 
+                'Monitor / Pantalla', 'Proyector', 'Impresora', 'Mouse', 
+                'Teclado', 'Audífonos', 'UPS', 'Cámara Web', 'Micrófono', 
+                'Parlantes', 'Disco Duro Externo', 'Pendrive', 'Router / Switch', 
+                'Cable HDMI / VGA', 'Adaptador', 'Tablet Educativa', 
+                'Lector de Código de Barras', 'Servidor', 'Escáner', 'Plotter',
+                'Teléfono IP', 'Tablet Gráfica', 'Docking Station', 
+                'Lector de CD/DVD Externo', 'Kit Robótica', 'Pizarra Interactiva'
+            ];
+            const existingCats = this.cache.categorias.map(c => c.nombre.toLowerCase());
+            for (const name of defaultCats) {
+                if (!existingCats.includes(name.toLowerCase())) {
                     const id = this.generateId('CT');
                     await setDoc(doc(firestore, 'categorias', id), { nombre: name });
                     this.cache.categorias.push({ id, nombre: name });

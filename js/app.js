@@ -1470,6 +1470,17 @@ const app = {
             }, 2000);
         }
     }
+    async refreshSettingsData() {
+        this.showToast('Sincronizando datos base...', 'info');
+        try {
+            await db.initData();
+            this.loadBrands();
+            this.loadCategories();
+            this.showToast('Sincronización completada', 'success');
+        } catch (error) {
+            this.showToast(error.message, 'error');
+        }
+    }
 };
 
 window.app = app;
