@@ -140,6 +140,7 @@ class Database {
     
     async saveEquipo(equipo) {
         const equipos = this.getEquipos();
+        const isNew = !equipo.id;
         // Validation for uniqueness
         if(equipos.find(e => (e.assetTag === equipo.assetTag || e.serie === equipo.serie) && e.id !== equipo.id)) {
             throw new Error('Asset Tag o Número de Serie ya existen.');
@@ -160,6 +161,9 @@ class Database {
             await setDoc(doc(firestore, 'equipos', equipo.id), dataToSave);
             equipos.push(equipo);
         }
+        
+        await this.registrarHistorial(equipo.id, 'Sistema', isNew ? 'Equipo Registrado' : 'Equipo Actualizado', new Date().toISOString().split('T')[0]);
+        
         return equipo;
     }
 

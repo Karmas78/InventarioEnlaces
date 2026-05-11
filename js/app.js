@@ -190,7 +190,15 @@ const app = {
     loadHistory() { history.loadHistory(); },
     
     exportData() { exporter.exportData(); },
-    openInventoryReportModal() { loans.openInventoryReportModal ? loans.openInventoryReportModal() : settings.openInventoryReportModal ? settings.openInventoryReportModal() : this._openInventoryReportModal(); },
+    openInventoryReportModal() {
+        if (loans.openInventoryReportModal) {
+            loans.openInventoryReportModal();
+        } else if (settings.openInventoryReportModal) {
+            settings.openInventoryReportModal();
+        } else {
+            this._openInventoryReportModal();
+        }
+    },
     
     // Some missing report methods that were in app.js
     _openInventoryReportModal() {

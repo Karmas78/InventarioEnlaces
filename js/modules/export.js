@@ -44,7 +44,7 @@ export const exporter = {
         });
 
         // Prepare Historial
-        const historyData = db.getTable('history').map(h => {
+        const historyData = db.getTable('historial').map(h => {
             const eq = db.getEquipos().find(e => e.id === h.equipoId) || {};
             const func = db.getFuncionarios().find(f => f.id === h.funcionarioId) || {};
             return {

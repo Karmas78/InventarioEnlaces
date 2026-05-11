@@ -840,6 +840,9 @@ body {
     .pagination-container {
         flex-direction: column;
         gap: 15px;
+    }
+}
+
 /* Equipment Grid - Ordered Boxes (Recuadros) */
 .equipment-grid {
     display: grid;

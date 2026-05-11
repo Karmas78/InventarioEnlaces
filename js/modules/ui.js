@@ -1,6 +1,7 @@
 /**
  * UI Module - Shared UI components (Pagination, Sorting, Notifications)
  */
+import { db } from '../db.js';
 
 export const ui = {
     updateSortIcons(section, sortConfig) {
