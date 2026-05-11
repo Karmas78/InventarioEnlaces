@@ -984,142 +984,20 @@ body.dark-theme .eq-card-actions {
     transform: rotate(180deg);
 }
 
-.collapsible-card .tag-list {
+.collapsible-card .table-responsive {
     padding: 0 20px 20px 20px;
 }
 
-/* Staff Cards - Professional Refinement */
-.staff-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 20px;
-}
-
-.staff-card {
-    background: var(--surface-color);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    transition: var(--transition);
-    cursor: pointer;
-    position: relative;
-    border-left: 4px solid var(--secondary-color); /* Separation line */
-}
-
-.staff-card:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-    border-left-color: var(--primary-color);
-}
-
-.staff-card .avatar-container {
-    flex-shrink: 0;
-}
-
-.avatar-large {
-    width: 50px;
-    height: 50px;
-    border-radius: 10px;
-    background: var(--background-color);
-    color: var(--secondary-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    box-shadow: none;
-}
-
-.staff-card .info {
-    flex: 1;
-    min-width: 0;
-}
-
-.staff-card .info h4 {
-    margin: 0 0 6px 0;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--primary-color);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.staff-card .info p {
-    margin: 0 0 8px 0;
-    font-size: 14px;
-    color: var(--text-muted);
-}
-
-.staff-card .info .tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 11px;
-    background: rgba(99, 91, 255, 0.08);
-    color: var(--secondary-color);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-body.dark-theme .staff-card .info h4 {
-    color: #fff;
-}
-
-body.dark-theme .avatar-large {
-    background: var(--secondary-color);
-}
-
-/* Tag Lists (Brands/Categories) */
-.tag-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 5px 0;
-    min-height: 40px;
-}
-
-.tag-item {
-    background: var(--background-color);
-    border: 1px solid var(--border-color);
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: var(--transition);
-}
-
-.tag-item:hover {
-    background: var(--surface-color);
-    border-color: var(--secondary-color);
-    box-shadow: var(--shadow-sm);
-}
-
-.tag-item .btn-tag-action {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-size: 11px;
-    padding: 2px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.tag-item .btn-tag-action:hover {
-    color: var(--danger);
-}
-
-.tag-item .btn-tag-edit:hover {
-    color: var(--secondary-color);
+/* Mobile specific for cards */
+@media (max-width: 768px) {
+    .equipment-grid, .loan-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .equipment-card {
+        height: auto;
+        min-height: 120px;
+    }
 }
 
 /* Mobile specific for cards */

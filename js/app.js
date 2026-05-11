@@ -1162,30 +1162,40 @@ const app = {
     // ---- Gestión de Funcionarios ----
     loadStaff() {
         const funcionarios = db.getFuncionarios();
-        const container = document.getElementById('staff-cards-container');
-        if (!container) return;
-        container.innerHTML = '';
+        const tbody = document.getElementById('staff-table-body');
+        if (!tbody) return;
+        tbody.innerHTML = '';
 
         if (funcionarios.length === 0) {
-            container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; color:var(--text-muted); padding:40px;"><i class="fa-solid fa-users-slash fa-3x" style="margin-bottom:15px; opacity:0.3;"></i><p>No hay funcionarios registrados.</p></div>`;
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:40px;">No hay funcionarios registrados.</td></tr>`;
             return;
         }
 
         funcionarios.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || '')).forEach(f => {
-            const card = document.createElement('div');
-            card.className = 'staff-card';
-            card.onclick = () => this.openStaffOptions(f.id);
-            card.innerHTML = `
-                <div class="avatar-container">
-                    <div class="avatar-large"><i class="fa-solid fa-user"></i></div>
-                </div>
-                <div class="info">
-                    <h4>${f.nombre}</h4>
-                    <p style="margin:0 0 5px 0;">${f.cargo || 'Funcionario'}</p>
-                    <span class="tag">${f.departamento || 'Sin Depto.'}</span>
-                </div>
+            const tienePrestamoActivo = db.getAsignaciones(true).some(p => p.funcionarioId === f.id);
+            
+            tbody.innerHTML += `
+                <tr>
+                    <td>
+                        <div style="display: flex; gap: 15px; align-items: center;">
+                            <div class="avatar" style="background: var(--background-color); color: var(--secondary-color); width:35px; height:35px;"><i class="fa-solid fa-user"></i></div>
+                            <div>
+                                <strong>${f.nombre}</strong><br>
+                                <small class="text-muted">${f.email || 'Sin correo'}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${f.rut}</td>
+                    <td>
+                        <strong>${f.departamento || 'Sin Depto.'}</strong><br>
+                        <small class="text-muted">${f.cargo || 'Funcionario'}</small>
+                    </td>
+                    <td class="actions-cell">
+                        <button class="btn-icon" onclick="app.openFuncionarioModal('${f.id}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn-icon" onclick="app.deleteFuncionario('${f.id}')" title="Eliminar" style="color:var(--danger)" ${tienePrestamoActivo ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : ''}><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
             `;
-            container.appendChild(card);
         });
     },
 
@@ -1285,21 +1295,20 @@ const app = {
     // ---- Categorías ----
     loadCategories() {
         const cats = db.getCategorias().sort((a, b) => a.nombre.localeCompare(b.nombre));
-        const list = document.getElementById('categories-list');
-        if (!list) return;
-        list.innerHTML = '';
+        const tbody = document.getElementById('categories-table-body');
+        if (!tbody) return;
+        tbody.innerHTML = '';
         
         cats.forEach(c => {
-            const item = document.createElement('div');
-            item.className = 'tag-item';
-            item.innerHTML = `
-                <span>${c.nombre}</span>
-                <div style="display:flex; gap:5px;">
-                    <button class="btn-tag-action btn-tag-edit" onclick="app.openCategoriaModal('${c.id}')"><i class="fa-solid fa-pen"></i></button>
-                    <button class="btn-tag-action" onclick="app.deleteCategoria('${c.id}')"><i class="fa-solid fa-times"></i></button>
-                </div>
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${c.nombre}</strong></td>
+                    <td class="actions-cell">
+                        <button class="btn-icon" onclick="app.openCategoriaModal('${c.id}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn-icon" onclick="app.deleteCategoria('${c.id}')" title="Eliminar" style="color:var(--danger)"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
             `;
-            list.appendChild(item);
         });
 
         // Actualizar selects de equipos y filtros
@@ -1366,21 +1375,20 @@ const app = {
     // ---- Marcas ----
     loadBrands() {
         const marcas = db.getMarcas().sort((a, b) => a.nombre.localeCompare(b.nombre));
-        const list = document.getElementById('brands-list');
-        if (!list) return;
-        list.innerHTML = '';
+        const tbody = document.getElementById('brands-table-body');
+        if (!tbody) return;
+        tbody.innerHTML = '';
         
         marcas.forEach(m => {
-            const item = document.createElement('div');
-            item.className = 'tag-item';
-            item.innerHTML = `
-                <span>${m.nombre}</span>
-                <div style="display:flex; gap:5px;">
-                    <button class="btn-tag-action btn-tag-edit" onclick="app.openMarcaModal('${m.id}')"><i class="fa-solid fa-pen"></i></button>
-                    <button class="btn-tag-action" onclick="app.deleteMarca('${m.id}')"><i class="fa-solid fa-times"></i></button>
-                </div>
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${m.nombre}</strong></td>
+                    <td class="actions-cell">
+                        <button class="btn-icon" onclick="app.openMarcaModal('${m.id}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn-icon" onclick="app.deleteMarca('${m.id}')" title="Eliminar" style="color:var(--danger)"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
             `;
-            list.appendChild(item);
         });
 
         // Actualizar datalist de marcas
